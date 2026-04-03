@@ -2,7 +2,7 @@ import asyncio
 from collections.abc import Awaitable, Callable, Generator
 from typing import Any, List, Never, Optional, Tuple, overload
 
-__all__ = ("OK", "Err", "Die", "Exit", "Effect")
+__all__ = ("Ok", "Err", "Die", "Exit", "Effect")
 
 type Thunk[T] = Callable[[], T]
 
