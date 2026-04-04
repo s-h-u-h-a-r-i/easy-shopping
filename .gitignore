@@ -1,5 +1,6 @@
 # IDE
 .cursor/hooks/state/
+postgres-language-server.jsonc
 
 # env
 .env
