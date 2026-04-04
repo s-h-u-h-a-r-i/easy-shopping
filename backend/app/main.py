@@ -17,6 +17,12 @@ configure_logging()
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    get_logger().info(
+        "Uvicorn server started",
+        host=settings.host,
+        port=settings.port,
+        reload=settings.is_local,
+    )
     await init_supabase()
     await init_jwks()
     yield
@@ -32,6 +38,9 @@ app = FastAPI(
     description="Backend API for the Easy Shopping app. Manages shopping lists and AI-powered suggestions.",
     version="0.1.0",
     lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 # endregion FastAPI App Setup
@@ -52,15 +61,12 @@ app.add_middleware(LoggingMiddleware)
 
 # region Routers
 
-router = APIRouter(prefix="/api")
-router.include_router(health_v1)
+app.include_router(health_v1, prefix="/api")
 
 # endregion Routers
 
 if __name__ == "__main__":
     import uvicorn
-
-    logger = get_logger()
 
     uvicorn.run(
         "app.main:app",
@@ -68,11 +74,4 @@ if __name__ == "__main__":
         port=settings.port,
         reload=settings.is_local,
         log_config=None,
-    )
-
-    logger.info(
-        "Uvicorn server started",
-        host=settings.host,
-        port=settings.port,
-        reload=settings.is_local,
     )

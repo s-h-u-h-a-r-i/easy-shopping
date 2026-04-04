@@ -17,4 +17,3 @@ async def init_supabase() -> None:
 def get_supabase() -> AsyncClient:
     assert _client is not None, "Supabase client not initialized"
     return _client
-    return _client

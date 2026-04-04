@@ -5,9 +5,9 @@
       "name": "Run FastAPI",
       "type": "debugpy",
       "request": "launch",
-      "python": "${workspaceFolder}/backend/.venv/bin/python",
+      "python": "${workspaceFolder}/.venv/bin/python",
       "module": "app.main",
-      "cwd": "${workspaceFolder}/backend",
+      "cwd": "${workspaceFolder}",
       "justMyCode": true
     }
   ]
