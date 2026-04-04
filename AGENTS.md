@@ -18,6 +18,7 @@ This is a portfolio project to showcase PostgreSQL experience via Supabase.
 
 ## Tech Stack
 
+
 | Layer      | Technology                                 |
 | ---------- | ------------------------------------------ |
 | Frontend   | SolidStart (TypeScript) + Bun              |
@@ -28,22 +29,26 @@ This is a portfolio project to showcase PostgreSQL experience via Supabase.
 | Deployment | Google Cloud Run (backend), TBD (frontend) |
 | VCS        | GitHub (monorepo)                          |
 
+
 ## Repository Structure (Monorepo)
 
 ```
 easy-shopping/
-├── frontend/        # SolidJS app
-├── backend/         # FastAPI app (Python, managed with uv)
-├── AGENTS.md        # This file
+├── frontend/        # SolidStart app (Bun, TypeScript)
+├── backend/         # FastAPI app (Python)
+├── AGENTS.md        # AI context (this file)
+├── PROGRESS.md      # Development checklist
 └── README.md
 ```
 
 ## Supabase Projects
 
-| Environment | Project Name      | URL                                          |
-|-------------|-------------------|----------------------------------------------|
-| Production  | Easy Shopping     | `https://qrzihjudzlxekgbjgbkc.supabase.co`  |
-| Development | Easy Shopping Dev | TBD (check Supabase dashboard)               |
+
+| Environment | Project Name      | URL                                        |
+| ----------- | ----------------- | ------------------------------------------ |
+| Production  | Easy Shopping     | `https://qrzihjudzlxekgbjgbkc.supabase.co` |
+| Development | Easy Shopping Dev | TBD (check Supabase dashboard)             |
+
 
 - Local `.env` always points to the **dev** project
 - Production credentials go in Cloud Run environment variables (or Secret Manager later)
@@ -72,9 +77,9 @@ RLS enabled on all tables. Indexes on `user_id` and `list_id` columns.
 
 - Python project in `backend/`
 - Uses `supabase-py` to interact with Supabase
-- JWT verification: validate Supabase-issued JWTs using the project's JWT secret
+- JWT verification: ES256 asymmetric signing via JWKS fetched from Supabase at startup — no shared secret
 - Deployed to Google Cloud Run — Dockerfile required
-- Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`
+- Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
 ### Backend Architecture — Effect Pattern
 
@@ -108,28 +113,18 @@ dependencies.py → plain FastAPI async deps (framework boundary, JWT auth)
 - Calls FastAPI for AI-related endpoints
 - Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`
 
-## Development Status
+## Development Progress
 
-- [x] Supabase project created
-- [x] Git initialised and pushed to GitHub
-- [ ] Supabase schema designed and migrations applied
-- [x] FastAPI backend scaffolded (`backend/`)
-  - [x] `core/effect/` — custom Effect system
-  - [x] `core/errors.py` — typed AppError hierarchy
-  - [x] `core/effect/runner.py` — end-of-the-world boundary
-  - [x] `core/config.py` — settings via pydantic-settings
-  - [ ] **API fundamentals**
-    - [ ] Supabase client — initialised once at startup, shared via dependency
-    - [ ] Lifespan — startup/shutdown events (`asynccontextmanager` on `app`)
-    - [ ] CORS middleware — allow SolidJS frontend origin
-    - [ ] Global exception handler — catch unhandled exceptions cleanly
-    - [ ] API versioning — all routes prefixed `/api/v1/`
-    - [ ] Health check — `GET /health` for Cloud Run probes
-    - [ ] Logging — structured logging configured at startup
-  - [ ] `core/dependencies.py` — JWT auth dependency
-  - [ ] `modules/lists/` — shopping list CRUD
-  - [ ] Dockerfile
-- [x] SolidStart frontend scaffolded (`frontend/`) — Bun, TypeScript, SolidStart
-- [ ] Auth flow working end-to-end
-- [ ] Basic CRUD for shopping lists
-- [ ] AI suggestion endpoint
+See `PROGRESS.md` for the full checklist of completed and upcoming work.
+
+## Learned User Preferences
+
+- User prefers to write code themselves; AI should provide step-by-step instructions rather than implementing changes directly.
+- Conventional commit messages are expected (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:` prefixes).
+
+## Learned Workspace Facts
+
+- Git branch naming convention: `feat/`, `fix/`, `chore/`, `ref/` prefixes.
+- mypy configured as strict with `disallow_untyped_defs = false` and `disallow_incomplete_defs = false` — return type annotations are not required.
+- Two Supabase MCP instances configured locally in Cursor: `supabase-dev` and `supabase-prod`, each locked to their respective project (project ref only in config, no secrets).
+- Supabase new key naming (2025+): "Publishable key" = anon key (frontend); "Secret key" = service role key (backend).
