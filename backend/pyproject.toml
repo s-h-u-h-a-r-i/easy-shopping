@@ -11,3 +11,8 @@ dependencies = [
     "supabase>=2.28.3",
     "uvicorn>=0.43.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.20.0",
+]
