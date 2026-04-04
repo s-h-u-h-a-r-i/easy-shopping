@@ -52,7 +52,14 @@ class Settings(BaseSettings):
             description="Port for the FastAPI server (1-65535)",
         ),
     ]
-    allowed_origins: typing.Annotated[typing.List[str], Field(default=["*"])]
+    allowed_origins: typing.Annotated[
+        typing.List[str],
+        Field(
+            ...,
+            description="List of allowed CORS origins. Must not be empty.",
+            min_items=1,
+        ),
+    ]
 
     # endregion Server Config
 

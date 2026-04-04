@@ -1,2 +1,5 @@
 # IDE
 .cursor/hooks/state/
+
+# env
+.env
