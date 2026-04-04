@@ -1,10 +1,15 @@
 from contextlib import asynccontextmanager
 
 from app.core.config import settings
+from app.core.logging import configure_logging, get_logger
 from app.core.supabase import init_supabase
 from app.modules.health import v1 as health_v1
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from backend.app.core.middleware.logging import LoggingMiddleware
+
+configure_logging()
 
 # region Lifespan
 
@@ -16,6 +21,7 @@ async def lifespan(_: FastAPI):
 
 
 # endregion Lifespan
+
 
 # region FastAPI App Setup
 
@@ -38,6 +44,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(LoggingMiddleware)
+
 # endregion Middleware
 
 # region Routers
@@ -50,6 +58,19 @@ router.include_router(health_v1)
 if __name__ == "__main__":
     import uvicorn
 
+    logger = get_logger()
+
     uvicorn.run(
-        "app.main:app", host=settings.host, port=settings.port, reload=settings.is_local
+        "app.main:app",
+        host=settings.host,
+        port=settings.port,
+        reload=settings.is_local,
+        log_config=None,
+    )
+
+    logger.info(
+        "Uvicorn server started",
+        host=settings.host,
+        port=settings.port,
+        reload=settings.is_local,
     )

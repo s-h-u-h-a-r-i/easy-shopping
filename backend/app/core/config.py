@@ -9,6 +9,8 @@ __all__ = ("settings",)
 
 class Environment(StrEnum):
     LOCAL = "local"
+    STAGING = "staging"
+    PRODUCTION = "production"
 
 
 class Settings(BaseSettings):
@@ -23,7 +25,6 @@ class Settings(BaseSettings):
 
     @property
     def is_local(self) -> bool:
-        """Convenience: True if running in local environment."""
         return self.env == Environment.LOCAL
 
     # endregion Environment

@@ -33,7 +33,7 @@ This is a portfolio project to showcase PostgreSQL experience via Supabase.
 ```
 easy-shopping/
 ├── frontend/        # SolidJS app
-├── backend/         # FastAPI app
+├── backend/         # FastAPI app (Python, managed with uv)
 ├── AGENTS.md        # This file
 └── README.md
 ```
