@@ -38,11 +38,15 @@ easy-shopping/
 └── README.md
 ```
 
-## Supabase Project
+## Supabase Projects
 
-- **Project URL:** `https://qrzihjudzlxekgbjgbkc.supabase.co`
-- **Region:** TBD (check Supabase dashboard)
-- **Status at project start:** Fresh project, no public schema tables yet
+| Environment | Project Name      | URL                                          |
+|-------------|-------------------|----------------------------------------------|
+| Production  | Easy Shopping     | `https://qrzihjudzlxekgbjgbkc.supabase.co`  |
+| Development | Easy Shopping Dev | TBD (check Supabase dashboard)               |
+
+- Local `.env` always points to the **dev** project
+- Production credentials go in Cloud Run environment variables (or Secret Manager later)
 
 ### Auth Strategy
 

@@ -58,7 +58,7 @@ class Settings(BaseSettings):
         Field(
             ...,
             description="List of allowed CORS origins. Must not be empty.",
-            min_items=1,
+            min_length=1,
         ),
     ]
 
@@ -85,7 +85,6 @@ class Settings(BaseSettings):
         ),
         StringConstraints(
             min_length=40,
-            max_length=200,
             pattern=r"^[A-Za-z0-9\._\-]+$",
             strip_whitespace=True,
         ),
@@ -93,7 +92,7 @@ class Settings(BaseSettings):
 
     # endregion Supabase Config
 
-    model_config = SettingsConfigDict(env_file=".env", str_to_lower=True)
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()  # type: ignore[call-arg]
