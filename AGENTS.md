@@ -10,9 +10,12 @@ This is a portfolio project to showcase PostgreSQL experience via Supabase.
 
 ## Goals
 
-- Users can create and manage shopping lists
-- AI generates/suggests lists based on learnt usage patterns (purchase history, frequency, preferences)
-- Clean, modern UI with SolidJS
+- Users can create and manage shopping lists, organised into personal groups
+- Products added via barcode scan — global catalogue, API lookup, local-only if not found
+- Lists can be shared with others (owner / editor / viewer roles) via user invite
+- Snapshots taken on "finished shopping" — supports revert and future AI generation
+- AI list generation deferred — history data is in place; AI will generate based on group snapshot history
+- Clean, modern UI with SolidStart
 - REST API with FastAPI deployed to Google Cloud Run
 - Supabase (PostgreSQL) as the primary database and auth provider
 
@@ -56,22 +59,31 @@ easy-shopping/
 ### Auth Strategy
 
 - Supabase Auth handles user registration/login (email+password to start, OAuth later)
-- Frontend uses the Supabase JS client to sign in and get a JWT
-- FastAPI backend verifies the Supabase JWT on protected routes using the Supabase JWT secret
-- Row Level Security (RLS) enabled on all user-facing tables
+- Frontend uses the Supabase JS client to sign in and get a JWT (ES256)
+- FastAPI verifies JWTs via JWKS fetched from Supabase at startup — no shared secret
+- RLS enabled on all user-facing tables
 
-### Schema (public schema)
+### Schema (public schema — 9 tables)
 
-```sql
-profiles              -- extends auth.users (display name, preferences)
-shopping_lists        -- belongs to a user; type = 'manual' | 'ai_generated'; status = 'active' | 'completed' | 'archived'
-list_items            -- belongs to a list; name, quantity, unit, category, checked
-generation_sessions   -- groups a set of AI-generated list variants; records which list the user selected
+```
+profiles              extends auth.users; username (unique, for invite lookup), display_name
+products              global catalogue; barcode (unique), name, brand, category, image_url
+list_groups           personal collections owned by a user; used to organise lists and scope AI generation
+shopping_lists        status: active | shopping | completed; group_id (nullable FK list_groups); created_by
+shopping_list_members list_id + user_id + role (owner | editor | viewer)
+list_invites          list_id, invited_by, invited_user_id, role, status (pending | accepted | declined)
+list_items            list_id, product_id (NOT NULL — every saved item must reference a product), quantity, unit, checked
+list_snapshots        created when user clicks "finished shopping"; accessible to owner + editors only
+snapshot_items        denormalised product name/brand/category at snapshot time + product_id (nullable)
 ```
 
-`shopping_lists.selected_from_session` → FK to `generation_sessions` (set when a user picks an AI-generated list).
-`generation_sessions.selected_list_id` → FK back to `shopping_lists` (the chosen variant).
-RLS enabled on all tables. Indexes on `user_id` and `list_id` columns.
+**Key design decisions:**
+- No free-text items in DB — items must reference a product; local-only items (barcode not found) stay in localStorage
+- Products catalogue is global (shared across all users)
+- Sharing = access to current list state only; history (snapshots) visible to owner + editors, not viewers
+- List groups are personal (owner only) — shared lists appear in a "shared with me" view for other members
+- AI list generation is deferred — history data (snapshots) is in place to support it when ready
+- `generation_sessions` deferred — will be added when AI generation is implemented
 
 ## FastAPI Backend Notes
 
