@@ -20,7 +20,7 @@ This is a portfolio project to showcase PostgreSQL experience via Supabase.
 
 | Layer      | Technology                                 |
 | ---------- | ------------------------------------------ |
-| Frontend   | SolidJS (TypeScript)                       |
+| Frontend   | SolidStart (TypeScript) + Bun              |
 | Backend    | FastAPI (Python)                           |
 | Database   | Supabase (PostgreSQL)                      |
 | Auth       | Supabase Auth (JWT-based)                  |
@@ -95,9 +95,11 @@ dependencies.py → plain FastAPI async deps (framework boundary, JWT auth)
 
 **Error type in routes is always `AppError` (or a subtype).** `AppError.to_http_exception()` handles the conversion at the boundary in `runner.py`.
 
-## SolidJS Frontend Notes
+## SolidStart Frontend Notes
 
-- TypeScript project in `frontend/`
+- TypeScript project in `frontend/`, scaffolded with `bun create solid --solidstart --ts`
+- Package manager: **Bun**
+- SolidStart provides file-based routing and SSR
 - Uses `@supabase/supabase-js` for auth and direct DB reads where appropriate
 - Calls FastAPI for AI-related endpoints
 - Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`
@@ -123,7 +125,7 @@ dependencies.py → plain FastAPI async deps (framework boundary, JWT auth)
   - [ ] `core/dependencies.py` — JWT auth dependency
   - [ ] `modules/lists/` — shopping list CRUD
   - [ ] Dockerfile
-- [ ] SolidJS frontend scaffolded
+- [x] SolidStart frontend scaffolded (`frontend/`) — Bun, TypeScript, SolidStart
 - [ ] Auth flow working end-to-end
 - [ ] Basic CRUD for shopping lists
 - [ ] AI suggestion endpoint
