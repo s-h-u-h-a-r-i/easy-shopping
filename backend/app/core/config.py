@@ -76,7 +76,6 @@ class Settings(BaseSettings):
             strip_whitespace=True,
         ),
     ]
-    # TODO: find out if I can use something like application credentials
     supabase_service_role_key: typing.Annotated[
         str,
         Field(
@@ -85,6 +84,18 @@ class Settings(BaseSettings):
         ),
         StringConstraints(
             min_length=40,
+            pattern=r"^[A-Za-z0-9\._\-]+$",
+            strip_whitespace=True,
+        ),
+    ]
+    supabase_jwt_secret: typing.Annotated[
+        str,
+        Field(
+            ...,
+            description="Supabase JWT secret (for verifying JWTs issued by Supabase Auth)",
+        ),
+        StringConstraints(
+            min_length=32,
             pattern=r"^[A-Za-z0-9\._\-]+$",
             strip_whitespace=True,
         ),
