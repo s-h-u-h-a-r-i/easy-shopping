@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.auth import init_jwks
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import LoggingMiddleware
@@ -17,6 +18,7 @@ configure_logging()
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     await init_supabase()
+    await init_jwks()
     yield
 
 

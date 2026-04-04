@@ -88,18 +88,6 @@ class Settings(BaseSettings):
             strip_whitespace=True,
         ),
     ]
-    supabase_jwt_secret: typing.Annotated[
-        str,
-        Field(
-            ...,
-            description="Supabase JWT secret (for verifying JWTs issued by Supabase Auth)",
-        ),
-        StringConstraints(
-            min_length=32,
-            pattern=r"^[A-Za-z0-9\._\-]+$",
-            strip_whitespace=True,
-        ),
-    ]
 
     # endregion Supabase Config
 
