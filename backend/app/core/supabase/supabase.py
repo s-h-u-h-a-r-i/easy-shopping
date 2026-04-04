@@ -1,5 +1,6 @@
-from app.core.config import settings
 from supabase import AsyncClient, acreate_client
+
+from app.core.config import settings
 
 __all__ = ("init_supabase", "get_supabase")
 
@@ -15,4 +16,5 @@ async def init_supabase() -> None:
 
 def get_supabase() -> AsyncClient:
     assert _client is not None, "Supabase client not initialized"
+    return _client
     return _client

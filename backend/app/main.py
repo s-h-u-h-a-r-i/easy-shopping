@@ -1,13 +1,13 @@
 from contextlib import asynccontextmanager
 
-from app.core.config import settings
-from app.core.logging import configure_logging, get_logger
-from app.core.supabase import init_supabase
-from app.modules.health import v1 as health_v1
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.core.middleware.logging import LoggingMiddleware
+from app.core.config import settings
+from app.core.logging import configure_logging, get_logger
+from app.core.middleware import LoggingMiddleware
+from app.core.supabase import init_supabase
+from app.modules.health import v1 as health_v1
 
 configure_logging()
 

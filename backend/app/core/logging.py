@@ -2,8 +2,9 @@ import logging
 import typing
 
 import structlog
-from app.core.config import settings
 from structlog.types import Processor
+
+from app.core.config import settings
 
 __all__ = ("configure_logging", "get_logger")
 
@@ -29,4 +30,5 @@ def configure_logging() -> None:
 
 
 def get_logger() -> structlog.types.FilteringBoundLogger:
-    return structlog.get_logger()
+    logger = structlog.get_logger()
+    return typing.cast(structlog.types.FilteringBoundLogger, logger)

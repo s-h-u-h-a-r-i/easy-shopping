@@ -1,6 +1,7 @@
+from fastapi import HTTPException, status
+
 from app.core.effect import Die, Effect, Err, Ok
 from app.core.errors import AppError
-from fastapi import HTTPException, status
 
 __all__ = ("run",)
 
