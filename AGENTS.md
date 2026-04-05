@@ -109,9 +109,21 @@ All business logic is wrapped in a custom `Effect[A, E]` system (`app/core/effec
 **Pattern per layer:**
 
 ```
-service.py   → returns Effect[A, AppError]   (pure composition, no HTTP)
-router.py    → async def route(): return await run(service.do_thing())
-dependencies.py → plain FastAPI async deps (framework boundary, JWT auth)
+router.py       (controller) → HTTP only; calls service, returns response via run()
+service.py                   → business logic; orchestrates Effects, maps errors; no HTTP, no raw DB
+repository.py                → data access only; all Supabase queries; returns Effect[T, DBError]
+schemas.py                   → Pydantic request/response models
+dependencies.py              → plain FastAPI async deps (framework boundary, JWT auth)
+```
+
+**Module structure:**
+```
+app/modules/<module>/
+├── __init__.py
+├── router.py
+├── service.py
+├── repository.py
+└── schemas.py
 ```
 
 **Error type in routes is always `AppError` (or a subtype).** `AppError.to_http_exception()` handles the conversion at the boundary in `runner.py`.
