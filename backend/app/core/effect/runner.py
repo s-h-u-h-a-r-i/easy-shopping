@@ -6,7 +6,7 @@ from app.core.errors import AppError
 __all__ = ("run",)
 
 
-async def run[A](effect: Effect[A, AppError]) -> A:
+async def run[A, E: AppError](effect: Effect[A, E]) -> A:
     exit = await effect
     match exit:
         case Ok(value=v):

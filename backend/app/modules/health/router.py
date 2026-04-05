@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.modules.health import HealthResponseModel
+from .schemas import HealthResponseModel
 
 __all__ = ("v1",)
 

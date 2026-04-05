@@ -1,18 +1,19 @@
 import typing
 from datetime import datetime
 
+from supabase._async.client import AsyncClient
+
 from app.core.effect import Effect
 from app.core.errors import DBError, NotFound
-from app.modules.profiles import Profile
 
-from supabase import AsyncClient
+from .models import Profile
 
 __all__ = ("UserProfileRepository",)
 
 
 class UserProfileRepository:
     def __init__(self, client: AsyncClient) -> None:
-        self._client = client
+        self._client: AsyncClient = client
 
     def fetch_user_profile(self, user_id: str):
         async def query():
@@ -25,7 +26,7 @@ class UserProfileRepository:
             )
             if response is None or response.data is None:
                 raise NotFound(f"Profile with id {user_id}")
-            return typing.cast(typing.Dict[str, typing.Any], response.data)
+            return typing.cast(dict[str, typing.Any], response.data)
 
         return Effect.from_async(
             query,
@@ -35,7 +36,7 @@ class UserProfileRepository:
         ).map(_parse_profile_row)
 
 
-def _parse_profile_row(row: typing.Dict[str, typing.Any]) -> Profile:
+def _parse_profile_row(row: dict[str, typing.Any]) -> Profile:
     return Profile(
         id=str(row["id"]),
         username=str(row["username"]),

@@ -3,7 +3,9 @@ from fastapi import APIRouter, Depends
 from app.core.dependencies import get_current_user
 from app.core.effect import run
 from app.core.supabase import get_supabase
-from app.modules.profiles import ProfileResponse, UserProfileRepository
+
+from .repository import UserProfileRepository
+from .schemas import ProfileResponse
 
 __all__ = ("v1",)
 

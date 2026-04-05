@@ -1,4 +1,3 @@
-import typing
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -9,5 +8,5 @@ __all__ = ("Profile",)
 class Profile:
     id: str
     username: str
-    display_name: typing.Optional[str]
+    display_name: str | None
     created_at: datetime

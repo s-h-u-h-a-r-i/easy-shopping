@@ -1,8 +1,9 @@
 import typing
 from datetime import datetime
 
-from app.modules.profiles import Profile
 from pydantic import BaseModel, Field
+
+from app.modules.profiles import Profile
 
 __all__ = ("ProfileResponse",)
 
@@ -10,7 +11,7 @@ __all__ = ("ProfileResponse",)
 class ProfileResponse(BaseModel):
     id: typing.Annotated[str, Field(...)]
     username: typing.Annotated[str, Field(...)]
-    display_name: typing.Annotated[typing.Optional[str], Field(...)]
+    display_name: typing.Annotated[str | None, Field(...)]
     created_at: typing.Annotated[datetime, Field(...)]
 
     @classmethod
@@ -19,7 +20,5 @@ class ProfileResponse(BaseModel):
             id=profile.id,
             username=profile.username,
             display_name=profile.display_name,
+            created_at=profile.created_at,
         )
-
-
-name: str = 1
