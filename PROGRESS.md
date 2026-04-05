@@ -2,6 +2,7 @@
 
 ## Completed
 
+- Supabase schema migrated to dev project (9 tables, strict RLS, `handle_new_user` trigger)
 - Supabase projects created (dev + prod)
 - Git initialised and pushed to GitHub
 - Multi-root VSCode workspace (`easy-shopping.code-workspace`)
@@ -18,13 +19,7 @@
   - `core/middleware/` — `LoggingMiddleware` with request-scoped context vars
   - CORS, lifespan, global exception handler, health check, API versioning
 
-## In Progress
-
-- Supabase schema migrations (dev project)
-
 ## Up Next
-
-- Supabase schema migrations applied to dev project
 - `modules/profiles/` — create profile on signup, update username/display name
 - `modules/products/` — barcode lookup, add to global catalogue
 - `modules/groups/` — create/manage personal list groups

@@ -140,3 +140,6 @@ See `PROGRESS.md` for the full checklist of completed and upcoming work.
 - mypy configured as strict with `disallow_untyped_defs = false` and `disallow_incomplete_defs = false` — return type annotations are not required.
 - Two Supabase MCP instances configured locally in Cursor: `supabase-dev` and `supabase-prod`, each locked to their respective project (project ref only in config, no secrets).
 - Supabase new key naming (2025+): "Publishable key" = anon key (frontend); "Secret key" = service role key (backend).
+- Supabase CLI initialized at repo root (`supabase/migrations/`) for versioned schema migrations; apply per environment via CLI.
+- `postgres-language-server.jsonc` is gitignored — contains the dev DB connection string (password); must never be committed.
+- Multi-root Cursor workspace file `easy-shopping.code-workspace` at repo root — three roots: `root`, `backend`, `frontend`.
