@@ -74,9 +74,6 @@ type Exit[A, E] = Ok[A] | Err[E] | Die
 # endregion Exit types
 
 
-# region Effect — core
-
-
 class Effect[A, E]:
     __slots__ = ("_thunk",)
 
@@ -126,47 +123,6 @@ class Effect[A, E]:
                 return Err(error)
 
         return Effect(inner)
-
-    @staticmethod
-    def gen[F, R](f: Callable[[], Generator[Effect[Any, F], Any, R]]) -> Effect[R, F]:
-        async def inner() -> Exit[R, F]:
-            iterator = f()
-            exit_result: Optional[Exit[R, F]] = None
-            try:
-                sent = None
-
-                while True:
-                    try:
-                        effect = iterator.send(sent)
-                    except StopIteration as done:
-                        exit_result = Ok(done.value)
-                        break
-                    except Exception as defect:
-                        exit_result = Die(defect)
-                        break
-
-                    exit = await effect
-                    if not _is_ok(exit):
-                        exit_result = exit
-                        break
-                    sent = exit.value
-            finally:
-                try:
-                    iterator.close()
-                except asyncio.CancelledError:
-                    raise
-                except Exception as defect:
-                    if exit_result is None or _is_die(exit_result):
-                        exit_result = Die(defect)
-                    else:
-                        exit_result = Die(defect, suppressed=exit_result)
-
-            assert exit_result is not None
-            return exit_result
-
-        return Effect(inner)
-
-    # endregion Effect — core
 
     # region Effect — par overloads
 
@@ -543,11 +499,6 @@ class Effect[A, E]:
         return Effect(inner)
 
     # region Effect — combinators
-
-    @staticmethod
-    def bind[T, F](eff: Effect[T, F]) -> Generator[Effect[T, F], T, T]:
-        value = yield eff
-        return value
 
     def map[A2](self, f: Callable[[A], A2]) -> Effect[A2, E]:
         async def inner() -> Exit[A2, E]:
