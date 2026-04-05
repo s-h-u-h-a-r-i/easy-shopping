@@ -9,6 +9,7 @@ from app.core.logging import configure_logging, get_logger
 from app.core.middleware import LoggingMiddleware
 from app.core.supabase import init_supabase
 from app.modules.health import v1 as health_v1
+from app.modules.profiles import v1 as profiles_v1
 
 configure_logging()
 
@@ -61,7 +62,11 @@ app.add_middleware(LoggingMiddleware)
 
 # region Routers
 
-app.include_router(health_v1, prefix="/api")
+v1_router = APIRouter(prefix="/api/v1", tags=["v1"])
+v1_router.include_router(health_v1)
+v1_router.include_router(profiles_v1)
+
+app.include_router(v1_router)
 
 # endregion Routers
 

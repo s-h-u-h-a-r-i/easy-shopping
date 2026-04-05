@@ -1,5 +1,5 @@
 import typing
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dataclasses import dataclass
 
 from fastapi import HTTPException, status
@@ -11,10 +11,11 @@ __all__ = (
     "Forbidden",
     "DBError",
     "ValidationError",
+    "Conflict",
 )
 
 
-class AppError(ABC):
+class AppError(Exception):
     @abstractmethod
     def to_http_exception(self) -> HTTPException: ...
 
@@ -41,6 +42,14 @@ class NotFound(AppError):
         return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"{self.resource} not found"
         )
+
+
+@dataclass
+class Conflict(AppError):
+    detail: str = "Conflict"
+
+    def to_http_exception(self) -> HTTPException:
+        return HTTPException(status_code=status.HTTP_409_CONFLICT, detail=self.detail)
 
 
 @dataclass

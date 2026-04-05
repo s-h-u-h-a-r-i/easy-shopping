@@ -120,11 +120,14 @@ dependencies.py              → plain FastAPI async deps (framework boundary, J
 ```
 app/modules/<module>/
 ├── __init__.py
-├── router.py
-├── service.py
-├── repository.py
-└── schemas.py
+├── models.py       ← DB row representation (dataclass, mirrors DB schema)
+├── schemas.py      ← HTTP request/response shapes (Pydantic)
+├── repository.py   ← Supabase queries only; returns Effect[Model | None, DBError]
+├── service.py      ← business logic; maps Model → Schema; returns Effect[Schema, AppError]
+└── router.py       ← FastAPI routes; calls service via run()
 ```
+
+**Type boundary at repository:** supabase-py stubs use `Any` in places — use `# type: ignore` once at the raw dict → Model parse in repository, restore proper types immediately. Everything above repository is fully typed.
 
 **Error type in routes is always `AppError` (or a subtype).** `AppError.to_http_exception()` handles the conversion at the boundary in `runner.py`.
 
