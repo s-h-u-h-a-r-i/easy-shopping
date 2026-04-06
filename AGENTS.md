@@ -139,6 +139,15 @@ app/modules/<module>/
 - Uses `@supabase/supabase-js` for auth and direct DB reads where appropriate
 - Calls FastAPI for AI-related endpoints
 - Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`
+- **Styling: SCSS Modules** — every component has a co-located `.module.scss` file; global styles in `src/styles/`
+- **Global styles structure:**
+  - `src/styles/index.scss` — entry point, imports all partials
+  - `src/styles/_theme.scss` — CSS custom properties (light + dark via media query)
+  - `src/styles/_reset.scss` — box model reset
+  - `src/styles/_typography.scss` — base font and heading rules
+  - `src/styles/_layout.scss` — `#root`, `html`, `body` base layout
+- **Component structure:** `src/ui/<Component>/` with `Component.tsx`, `Component.module.scss`, `index.ts`
+- **Routing:** `@solidjs/router` with lazy-loaded routes; `Layout.tsx` as persistent shell with `<Outlet />`
 
 ## Development Progress
 

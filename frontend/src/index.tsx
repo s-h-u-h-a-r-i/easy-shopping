@@ -2,7 +2,8 @@
 import 'solid-devtools';
 import { render } from 'solid-js/web';
 
-import App from './app/App';
+import { Router } from '@solidjs/router';
+import { routes } from './app/router';
 import './styles/index.scss';
 
 const root = document.getElementById('root');
@@ -13,4 +14,4 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-render(() => <App />, root!);
+render(() => <Router children={routes} />, root!);
