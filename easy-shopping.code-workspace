@@ -1,0 +1,11 @@
+{
+  "folders": [
+    { "name": "root", "path": "." },
+    { "name": "backend", "path": "backend" },
+    { "name": "frontend", "path": "frontend" },
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder:backend}/.venv/bin/python",
+    "postman.settings.dotenv-detection-notification-visibility": false,
+  },
+}

@@ -1,6 +1,6 @@
 import asyncio
 from collections.abc import Awaitable, Callable, Generator
-from typing import Any, List, Never, Optional, Tuple, overload
+from typing import Any, List, Never, Optional, Tuple, TypeIs, overload
 
 __all__ = ("Ok", "Err", "Die", "Exit", "Effect")
 
@@ -74,9 +74,6 @@ type Exit[A, E] = Ok[A] | Err[E] | Die
 # endregion Exit types
 
 
-# region Effect — core
-
-
 class Effect[A, E]:
     __slots__ = ("_thunk",)
 
@@ -126,47 +123,6 @@ class Effect[A, E]:
                 return Err(error)
 
         return Effect(inner)
-
-    @staticmethod
-    def gen[F, R](f: Callable[[], Generator[Effect[Any, F], Any, R]]) -> Effect[R, F]:
-        async def inner() -> Exit[R, F]:
-            iterator = f()
-            exit_result: Optional[Exit[R, F]] = None
-            try:
-                sent = None
-
-                while True:
-                    try:
-                        effect = iterator.send(sent)
-                    except StopIteration as done:
-                        exit_result = Ok(done.value)
-                        break
-                    except Exception as defect:
-                        exit_result = Die(defect)
-                        break
-
-                    exit = await effect
-                    if not isinstance(exit, Ok):
-                        exit_result = exit
-                        break
-                    sent = exit.value
-            finally:
-                try:
-                    iterator.close()
-                except asyncio.CancelledError:
-                    raise
-                except Exception as defect:
-                    if exit_result is None or isinstance(exit_result, Die):
-                        exit_result = Die(defect)
-                    else:
-                        exit_result = Die(defect, suppressed=exit_result)
-
-            assert exit_result is not None
-            return exit_result
-
-        return Effect(inner)
-
-    # endregion Effect — core
 
     # region Effect — par overloads
 
@@ -299,10 +255,10 @@ class Effect[A, E]:
         async def inner() -> Exit[Tuple[Any, ...], Any]:
             exits = await asyncio.gather(*(e._thunk() for e in effects))
             out: List[Any] = []
-            for x in exits:
-                if not isinstance(x, Ok):
-                    return x
-                out.append(x.value)
+            for e in exits:
+                if not _is_ok(e):
+                    return e
+                out.append(e.value)
             return Ok(value=tuple(out))
 
         return Effect(inner)
@@ -544,15 +500,10 @@ class Effect[A, E]:
 
     # region Effect — combinators
 
-    @staticmethod
-    def bind[T, F](eff: Effect[T, F]) -> Generator[Effect[T, F], T, T]:
-        value = yield eff
-        return value
-
     def map[A2](self, f: Callable[[A], A2]) -> Effect[A2, E]:
         async def inner() -> Exit[A2, E]:
             exit = await self
-            if not isinstance(exit, Ok):
+            if not _is_ok(exit):
                 return exit
             return _protect_sync(lambda: f(exit.value))
 
@@ -561,10 +512,10 @@ class Effect[A, E]:
     def flat_map[A2, E2](self, f: Callable[[A], Effect[A2, E2]]) -> Effect[A2, E | E2]:
         async def inner() -> Exit[A2, E | E2]:
             exit = await self
-            if not isinstance(exit, Ok):
+            if not _is_ok(exit):
                 return exit
             protected = await _protect_async(lambda: f(exit.value))
-            if isinstance(protected, Ok):
+            if _is_ok(protected):
                 return protected.value
             return protected
 
@@ -573,13 +524,13 @@ class Effect[A, E]:
     def tap[A2, E2](self, f: Callable[[A], Effect[A2, E2]]) -> Effect[A, E | E2]:
         async def inner() -> Exit[A, E | E2]:
             exit = await self
-            if not isinstance(exit, Ok):
+            if not _is_ok(exit):
                 return exit
             side = await _protect_async(lambda: f(exit.value))
-            if not isinstance(side, Ok):
+            if not _is_ok(side):
                 return side
             side_exit = side.value
-            if not isinstance(side_exit, Ok):
+            if not _is_ok(side_exit):
                 return side_exit
             return exit
 
@@ -588,10 +539,10 @@ class Effect[A, E]:
     def map_error[E2](self, f: Callable[[E], E2]) -> Effect[A, E2]:
         async def inner() -> Exit[A, E2]:
             exit = await self
-            if not isinstance(exit, Err):
+            if not _is_err(exit):
                 return exit
             mapped = _protect_sync(lambda: f(exit.error))
-            if not isinstance(mapped, Ok):
+            if not _is_ok(mapped):
                 return mapped
             return Err(mapped.value)
 
@@ -600,10 +551,10 @@ class Effect[A, E]:
     def or_else[E2](self, f: Callable[[E], Effect[A, E2]]) -> Effect[A, E2]:
         async def inner() -> Exit[A, E2]:
             exit = await self
-            if not isinstance(exit, Err):
+            if not _is_err(exit):
                 return exit
             protected = await _protect_async(lambda: f(exit.error))
-            if not isinstance(protected, Ok):
+            if not _is_ok(protected):
                 return protected
             return protected.value
 
@@ -612,13 +563,13 @@ class Effect[A, E]:
     def tap_error[A2, E2](self, f: Callable[[E], Effect[A2, E2]]) -> Effect[A, E | E2]:
         async def inner() -> Exit[A, E | E2]:
             exit = await self
-            if not isinstance(exit, Err):
+            if not _is_err(exit):
                 return exit
             side = await _protect_async(lambda: f(exit.error))
-            if not isinstance(side, Ok):
+            if not _is_ok(side):
                 return side
             side_exit = side.value
-            if isinstance(side_exit, Err):
+            if _is_err(side_exit):
                 return side_exit
             return exit
 
@@ -650,7 +601,7 @@ class Effect[A, E]:
             last: Optional[Err[E]] = None
             for i in range(attempts):
                 exit = await self
-                if not isinstance(exit, Err):
+                if not _is_err(exit):
                     return exit
 
                 last = exit
@@ -659,7 +610,7 @@ class Effect[A, E]:
                     should_continue = True
                 else:
                     protected = _protect_sync(lambda: should_retry(exit.error))
-                    if isinstance(protected, Die):
+                    if _is_die(protected):
                         return protected
                     should_continue = protected.value
 
@@ -678,6 +629,18 @@ class Effect[A, E]:
 
 
 # region Internal helpers
+
+
+def _is_ok[T](e: Exit[T, Any]) -> TypeIs[Ok[T]]:
+    return isinstance(e, Ok)
+
+
+def _is_err[T](e: Exit[Any, T]) -> TypeIs[Err[T]]:
+    return isinstance(e, Err)
+
+
+def _is_die(e: Exit[Any, Any]) -> TypeIs[Die]:
+    return isinstance(e, Die)
 
 
 def _protect_sync[A](f: Callable[[], A]) -> Ok[A] | Die:

@@ -1,20 +1,13 @@
-import typing
-from typing import Literal
-
 from fastapi import APIRouter
-from pydantic import BaseModel, Field
+
+from .schemas import HealthResponseModel
 
 __all__ = ("v1",)
 
 
-# TODO: This should go in proper file
-class HealthResponseModel(BaseModel):
-    status: typing.Annotated[Literal["ok"], Field(default="ok", init=False)]
+v1 = APIRouter(prefix="/health", tags=["Health"])
 
 
-v1 = APIRouter(prefix="/v1", tags=["Health"])
-
-
-@v1.get("/health")
+@v1.get("/", response_model=HealthResponseModel)
 async def health():
     return HealthResponseModel()

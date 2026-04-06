@@ -9,6 +9,8 @@ __all__ = ("settings",)
 
 class Environment(StrEnum):
     LOCAL = "local"
+    STAGING = "staging"
+    PRODUCTION = "production"
 
 
 class Settings(BaseSettings):
@@ -23,7 +25,6 @@ class Settings(BaseSettings):
 
     @property
     def is_local(self) -> bool:
-        """Convenience: True if running in local environment."""
         return self.env == Environment.LOCAL
 
     # endregion Environment
@@ -52,7 +53,14 @@ class Settings(BaseSettings):
             description="Port for the FastAPI server (1-65535)",
         ),
     ]
-    allowed_origins: typing.Annotated[typing.List[str], Field(default=["*"])]
+    allowed_origins: typing.Annotated[
+        typing.List[str],
+        Field(
+            ...,
+            description="List of allowed CORS origins. Must not be empty.",
+            min_length=1,
+        ),
+    ]
 
     # endregion Server Config
 
@@ -68,7 +76,6 @@ class Settings(BaseSettings):
             strip_whitespace=True,
         ),
     ]
-    # TODO: find out if I can use something like application credentials
     supabase_service_role_key: typing.Annotated[
         str,
         Field(
@@ -77,7 +84,6 @@ class Settings(BaseSettings):
         ),
         StringConstraints(
             min_length=40,
-            max_length=200,
             pattern=r"^[A-Za-z0-9\._\-]+$",
             strip_whitespace=True,
         ),
@@ -85,7 +91,7 @@ class Settings(BaseSettings):
 
     # endregion Supabase Config
 
-    model_config = SettingsConfigDict(env_file=".env", str_to_lower=True)
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()  # type: ignore[call-arg]

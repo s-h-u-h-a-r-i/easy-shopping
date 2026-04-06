@@ -1,2 +1,7 @@
 # IDE
 .cursor/hooks/state/
+
+# env
+.env
+
+.mypy_cache

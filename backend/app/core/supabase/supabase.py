@@ -1,5 +1,6 @@
-from app.core.config import settings
 from supabase import AsyncClient, acreate_client
+
+from app.core.config import settings
 
 __all__ = ("init_supabase", "get_supabase")
 

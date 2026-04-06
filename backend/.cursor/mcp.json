@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "supabase-dev": {
+      "url": "https://mcp.supabase.com/mcp?project_ref=lsmhikftnmexgpkzkfyq&read_only=true"
+    },
+    "supabase-prod": {
+      "url": "https://mcp.supabase.com/mcp?project_ref=qrzihjudzlxekgbjgbkc&read_only=true"
+    }
+  }
+}
