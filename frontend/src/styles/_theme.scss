@@ -32,6 +32,7 @@
   --sidebar-accent-foreground: #1a1a1a;
   --sidebar-border: #e5e5e5;
   --sidebar-ring: #6366f1;
+  --sidebar-width: 280px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -65,5 +66,6 @@
     --sidebar-accent-foreground: #fafafa;
     --sidebar-border: #262626;
     --sidebar-ring: #6366f1;
+    --sidebar-width: 280px;
   }
 }

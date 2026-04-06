@@ -3,6 +3,7 @@ import 'solid-devtools';
 import { render } from 'solid-js/web';
 
 import { Router } from '@solidjs/router';
+import Layout from './app/Layout';
 import { routes } from './app/router';
 import './styles/index.scss';
 
@@ -14,4 +15,4 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-render(() => <Router children={routes} />, root!);
+render(() => <Router root={Layout} children={routes} />, root!);
