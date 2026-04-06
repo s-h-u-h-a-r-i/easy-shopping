@@ -1,0 +1,9 @@
+@mixin spin($duration: 1s, $timing: linear, $infinite: true) {
+  animation: spin-anim $duration $timing if($infinite, infinite, none);
+}
+
+@keyframes spin-anim {
+  100% {
+    rotate: 360deg;
+  }
+}
