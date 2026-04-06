@@ -24,7 +24,7 @@ This is a portfolio project to showcase PostgreSQL experience via Supabase.
 
 | Layer      | Technology                                 |
 | ---------- | ------------------------------------------ |
-| Frontend   | SolidStart (TypeScript) + Bun              |
+| Frontend   | SolidJS + Vite (TypeScript) + Bun          |
 | Backend    | FastAPI (Python)                           |
 | Database   | Supabase (PostgreSQL)                      |
 | Auth       | Supabase Auth (JWT-based)                  |
@@ -131,11 +131,11 @@ app/modules/<module>/
 
 **Error type in routes is always `AppError` (or a subtype).** `AppError.to_http_exception()` handles the conversion at the boundary in `runner.py`.
 
-## SolidStart Frontend Notes
+## Frontend Notes
 
-- TypeScript project in `frontend/`, scaffolded with `bun create solid --solidstart --ts`
+- Pure SPA — SolidJS + Vite (TypeScript)
 - Package manager: **Bun**
-- SolidStart provides file-based routing and SSR
+- Client-side only, no SSR — all content behind auth so no SEO requirement
 - Uses `@supabase/supabase-js` for auth and direct DB reads where appropriate
 - Calls FastAPI for AI-related endpoints
 - Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`

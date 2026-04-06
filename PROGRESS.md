@@ -6,7 +6,7 @@
 - Supabase projects created (dev + prod)
 - Git initialised and pushed to GitHub
 - Multi-root VSCode workspace (`easy-shopping.code-workspace`)
-- SolidStart frontend scaffolded (`frontend/`) — Bun, TypeScript
+- Frontend scaffolded (`frontend/`) — SolidJS + Vite, Bun, TypeScript, SPA mode
 - FastAPI backend scaffolded (`backend/`)
   - `core/effect/` — custom `Effect[A, E]` system (ZIO/Effect-TS style)
   - `core/errors.py` — typed `AppError` hierarchy
