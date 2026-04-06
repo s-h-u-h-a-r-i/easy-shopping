@@ -147,7 +147,15 @@ app/modules/<module>/
   - `src/styles/_typography.scss` — base font and heading rules
   - `src/styles/_layout.scss` — `#root`, `html`, `body` base layout
 - **Component structure:** `src/ui/<Component>/` with `Component.tsx`, `Component.module.scss`, `index.ts`
-- **Routing:** `@solidjs/router` with lazy-loaded routes; `Layout.tsx` as persistent shell with `<Outlet />`
+- **Routing:** `@solidjs/router` config-based routing (`router.ts` exports `RouteDefinition[]`); `Layout.tsx` passed as `root` prop to `<Router>` — receives `props.children` directly, no `<Outlet />` needed
+- **Architecture — dependency direction is strictly downward:**
+  ```
+  pages → features → ui
+  ```
+  - `ui/` — pure presentational components, no feature or page imports
+  - `features/` — self-contained domain logic and components, no page imports
+  - `pages/` — assembles features and ui components into views
+- **File structure per ui component:** `src/ui/<Component>/Component.tsx`, `Component.module.scss`, `index.ts`
 
 ## Development Progress
 
