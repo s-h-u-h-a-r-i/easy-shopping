@@ -4,6 +4,15 @@ import { lazy } from 'solid-js';
 export const routes: RouteDefinition[] = [
   {
     path: '/ui',
-    component: lazy(() => import('./pages/UiPlayground')),
+    component: lazy(() => import('./pages/ui/UiIndexPage')),
+    children: [
+      {
+        path: '/',
+      },
+      {
+        path: '/buttons',
+        component: lazy(() => import('./pages/ui/ButtonsPage')),
+      },
+    ],
   },
 ];
