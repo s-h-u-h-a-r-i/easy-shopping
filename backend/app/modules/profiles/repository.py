@@ -1,7 +1,7 @@
 import typing
 from datetime import datetime
 
-from supabase._async.client import AsyncClient
+from supabase import AsyncClient
 
 from app.core.effect import Effect
 from app.core.errors import DBError, NotFound

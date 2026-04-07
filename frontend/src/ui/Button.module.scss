@@ -1,0 +1,124 @@
+@use '../styles' as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease,
+    box-shadow 150ms ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &.loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+  &:active {
+    filter: brightness(0.95);
+  }
+}
+
+.secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border-color: var(--border);
+
+  &:hover {
+    background: var(--muted);
+  }
+  &:active {
+    filter: brightness(0.97);
+  }
+}
+
+.ghost {
+  background: transparent;
+  color: var(--foreground);
+
+  &:hover {
+    background: var(--muted);
+  }
+  &:active {
+    background: var(--accent);
+  }
+}
+
+.destructive {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  border-color: var(--destructive);
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+  &:active {
+    filter: brightness(0.9);
+  }
+}
+
+.sm {
+  height: 2rem;
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.md {
+  height: 2.5rem;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}
+
+.lg {
+  height: 3rem;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.label {
+  display: content;
+}
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  @include spin(0.6s, linear, true);
+}
