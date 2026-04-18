@@ -21,7 +21,6 @@ This is a portfolio project to showcase PostgreSQL experience via Supabase.
 
 ## Tech Stack
 
-
 | Layer      | Technology                                 |
 | ---------- | ------------------------------------------ |
 | Frontend   | SolidJS + Vite (TypeScript) + Bun          |
@@ -31,7 +30,6 @@ This is a portfolio project to showcase PostgreSQL experience via Supabase.
 | AI         | TBD — likely OpenAI API                    |
 | Deployment | Google Cloud Run (backend), TBD (frontend) |
 | VCS        | GitHub (monorepo)                          |
-
 
 ## Repository Structure (Monorepo)
 
@@ -46,12 +44,10 @@ easy-shopping/
 
 ## Supabase Projects
 
-
 | Environment | Project Name      | URL                                        |
 | ----------- | ----------------- | ------------------------------------------ |
 | Production  | Easy Shopping     | `https://qrzihjudzlxekgbjgbkc.supabase.co` |
 | Development | Easy Shopping Dev | TBD (check Supabase dashboard)             |
-
 
 - Local `.env` always points to the **dev** project
 - Production credentials go in Cloud Run environment variables (or Secret Manager later)
@@ -78,6 +74,7 @@ snapshot_items        denormalised product name/brand/category at snapshot time 
 ```
 
 **Key design decisions:**
+
 - No free-text items in DB — items must reference a product; local-only items (barcode not found) stay in localStorage
 - Products catalogue is global (shared across all users)
 - Sharing = access to current list state only; history (snapshots) visible to owner + editors, not viewers
@@ -117,6 +114,7 @@ dependencies.py              → plain FastAPI async deps (framework boundary, J
 ```
 
 **Module structure:**
+
 ```
 app/modules/<module>/
 ├── __init__.py
@@ -152,6 +150,7 @@ app/modules/<module>/
   ```
   pages → features → ui
   ```
+
   - `ui/` — pure presentational components, no feature or page imports
   - `features/` — self-contained domain logic and components, no page imports
   - `pages/` — assembles features and ui components into views
@@ -165,6 +164,7 @@ See `PROGRESS.md` for the full checklist of completed and upcoming work.
 
 - User prefers to write code themselves; AI should provide step-by-step instructions rather than implementing changes directly.
 - Conventional commit messages are expected (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:` prefixes).
+- Pragmatic abstraction — extracts local helpers only where repetition is genuine; avoids over-engineering for edge cases that are unlikely to occur.
 
 ## Learned Workspace Facts
 
@@ -175,3 +175,4 @@ See `PROGRESS.md` for the full checklist of completed and upcoming work.
 - Supabase CLI initialized at repo root (`supabase/migrations/`) for versioned schema migrations; apply per environment via CLI.
 - `postgres-language-server.jsonc` is gitignored — contains the dev DB connection string (password); must never be committed.
 - Multi-root Cursor workspace file `easy-shopping.code-workspace` at repo root — three roots: `root`, `backend`, `frontend`.
+- `/home/ahmose/Dev` is a symlink to `/mnt/dev`; the canonical workspace path is `/mnt/dev/easy-shopping`. Python language servers (mypy, basedpyright) resolve canonical paths — opening from the symlink path causes path mismatch so diagnostics don't appear in the editor. Always open Cursor from the canonical path.
