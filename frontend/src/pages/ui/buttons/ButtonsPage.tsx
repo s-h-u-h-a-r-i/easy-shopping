@@ -1,6 +1,10 @@
-import Button, { ButtonSize, type ButtonVariant } from '@/ui/button';
-import { IconArrowRight, IconPlus, IconTrash } from '@/ui/icons';
+import IconArrowRight from 'lucide-solid/icons/arrow-right';
+import IconPlus from 'lucide-solid/icons/plus';
+import IconTrash from 'lucide-solid/icons/trash-2';
 import { For, ParentComponent } from 'solid-js';
+
+import Button, { ButtonSize, type ButtonVariant } from '@/ui/button';
+
 import styles from './ButtonsPage.module.scss';
 
 const variantEntries: ReadonlyArray<[ButtonVariant, string]> = [

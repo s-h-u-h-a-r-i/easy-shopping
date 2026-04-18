@@ -1,8 +1,9 @@
+import IconEye from 'lucide-solid/icons/eye';
+import IconSearch from 'lucide-solid/icons/search';
 import { Index, ParentComponent } from 'solid-js';
 
 import Input, { InputSize } from '@/ui/input';
 
-import { IconEye, IconSearch } from '@/ui/icons';
 import styles from './InputsPage.module.scss';
 
 const sizeEntries: ReadonlyArray<{
