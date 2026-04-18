@@ -6,9 +6,25 @@
 .nav {
   display: flex;
   flex-direction: row;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  padding-top: 0;
+}
+
+.navItem {
+  text-transform: capitalize;
+  text-decoration: none;
+  color: var(--muted-foreground);
+  padding: 0.5rem 1rem;
+
+  & + & {
+    border-left: 1px solid var(--border);
+  }
+
+  &:hover,
+  &.active {
+    color: var(--foreground);
+    text-shadow: 0 0 12px var(--foreground);
+  }
 }
 
 .content {
