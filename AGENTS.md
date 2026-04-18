@@ -158,6 +158,35 @@ app/modules/<module>/
 
 - **File structure per ui component:** `src/ui/<Component>/Component.tsx`, `Component.module.scss`, `index.ts`
 
+### Frontend Architecture — Effect Pattern
+
+All feature-layer logic uses the `effect` npm package, mirroring the backend's ZIO-style typed error handling.
+
+**Error types** (`src/lib/errors.ts`): tagged classes via `Data.TaggedError` — `NotFound`, `Unauthorized`, `Forbidden`, `NetworkError`, `ValidationError`. Union type `AppError` covers all of them.
+
+**Layers:**
+
+- `src/lib/errors.ts` — shared `AppError` tagged error types
+- `src/features/<feature>/models.ts` — DB row shape (plain interface, mirrors DB schema)
+- `src/features/<feature>/schemas.ts` — component-facing shape (what pages/ui receive)
+- `src/features/<feature>/repository.ts` — Supabase queries wrapped in `Effect.tryPromise`; returns `Effect<Model, AppError>`
+- `src/features/<feature>/service.ts` — business logic; composes Effects, maps Model → Schema; returns `Effect<Schema, AppError>`
+
+**SolidJS bridge:** `createResource` fetchers call `Effect.runPromise(service.doThing())` — Effect failures propagate as thrown errors, which `createResource` captures in its error state. Use `Effect.runPromiseExit` when error type discrimination is needed at the call site.
+
+**Architecture boundary:** The `ui/` layer never imports from Effect or features. Components receive plain data via props/signals only.
+
+**Feature file structure:**
+
+```
+src/features/<name>/
+├── index.ts          ← public re-exports
+├── models.ts         ← DB row shape (no Effect)
+├── schemas.ts        ← component-facing shape (no Effect)
+├── repository.ts     ← Supabase queries → Effect<Model, AppError>
+└── service.ts        ← business logic → Effect<Schema, AppError>
+```
+
 ## Visual Design Language
 
 The UI is text-forward and weightless. Surfaces carry no fills; interaction is expressed through colour, borders, and light rather than boxes and backgrounds.
