@@ -1,16 +1,17 @@
 import { A, RouteSectionProps } from '@solidjs/router';
-
-import Button from '@/ui/Button';
 import { Component } from 'solid-js';
 
+import Button from '@/ui/Button';
+import styles from './UiIndexPage.module.scss';
+
 const UiIndexPage: Component<RouteSectionProps> = (props) => (
-  <div>
-    <nav>
+  <div class={styles.layout}>
+    <nav class={styles.nav}>
       <Button as={A} href="buttons">
         Buttons
       </Button>
     </nav>
-    {props.children}
+    <main class={styles.content}>{props.children}</main>
   </div>
 );
 
