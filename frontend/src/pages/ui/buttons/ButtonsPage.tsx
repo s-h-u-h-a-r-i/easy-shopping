@@ -1,0 +1,71 @@
+import Button, { ButtonSize, type ButtonVariant } from '@/ui/Button';
+import { IconArrowRight, IconPlus, IconTrash } from '@/ui/icons';
+import { For, ParentComponent } from 'solid-js';
+import styles from './ButtonsPage.module.scss';
+
+const variantEntries: ReadonlyArray<[ButtonVariant, string]> = [
+  ['primary', 'Primary'],
+  ['secondary', 'Secondary'],
+  ['destructive', 'Destructive'],
+  ['ghost', 'Ghost'],
+];
+
+const sizeEntries: ReadonlyArray<[ButtonSize, string]> = [
+  ['sm', 'Small'],
+  ['md', 'Medium'],
+  ['lg', 'Large'],
+];
+
+const DemoSection: ParentComponent<{ title: string }> = (props) => (
+  <section class={styles.section}>
+    <h2 class={styles.heading}>{props.title}</h2>
+    <div class={styles.row}>{props.children}</div>
+  </section>
+);
+
+const ButtonsPage = () => {
+  return (
+    <div class={styles.page}>
+      <DemoSection title="Variants">
+        <For each={variantEntries}>
+          {([variant, label]) => <Button variant={variant}>{label}</Button>}
+        </For>
+      </DemoSection>
+
+      <DemoSection title="Sizes">
+        <For each={sizeEntries}>
+          {([size, label]) => <Button size={size}>{label}</Button>}
+        </For>
+      </DemoSection>
+
+      <DemoSection title="Icons">
+        <Button startIcon={<IconPlus size={20} />}>Start icon</Button>
+        <Button endIcon={<IconArrowRight size={20} />}>End icon</Button>
+        <Button
+          startIcon={<IconTrash size={20} />}
+          variant="destructive"
+          endIcon={<IconArrowRight size={20} />}>
+          Both icons
+        </Button>
+      </DemoSection>
+
+      <DemoSection title="States">
+        <Button disabled>Disabled</Button>
+        <Button variant="secondary" disabled>
+          Disabled
+        </Button>
+        <Button loading>Loading</Button>
+        <Button variant="secondary" loading>
+          Loading
+        </Button>
+      </DemoSection>
+
+      <section class={styles.section}>
+        <h2 class={styles.heading}>Full width</h2>
+        <Button fullWidth>Full width</Button>
+      </section>
+    </div>
+  );
+};
+
+export default ButtonsPage;
