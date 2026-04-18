@@ -65,19 +65,19 @@ const Button = <T extends AsProp = 'button'>(props: ButtonProps<T>) => {
       aria-busy={local.loading}
       {...rest}>
       <Show when={local.startIcon && !local.loading}>
-        <span class={styles.icon} aria-hidden>
+        <span class={styles.icon} aria-hidden="true">
           {local.startIcon}
         </span>
       </Show>
 
       <Show when={local.loading}>
-        <span class={styles.spinner} aria-hidden></span>
+        <span class={styles.spinner} aria-hidden="true"></span>
       </Show>
 
       <span class={styles.label}>{local.children}</span>
 
       <Show when={local.endIcon && !local.loading}>
-        <span class={styles.icon} aria-hidden>
+        <span class={styles.icon} aria-hidden="true">
           {local.endIcon}
         </span>
       </Show>

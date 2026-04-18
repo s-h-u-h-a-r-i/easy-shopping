@@ -1,4 +1,4 @@
-import Button, { ButtonSize, type ButtonVariant } from '@/ui/Button';
+import Button, { ButtonSize, type ButtonVariant } from '@/ui/button';
 import { IconArrowRight, IconPlus, IconTrash } from '@/ui/icons';
 import { For, ParentComponent } from 'solid-js';
 import styles from './ButtonsPage.module.scss';
