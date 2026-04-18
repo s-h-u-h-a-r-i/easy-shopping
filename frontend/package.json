@@ -21,6 +21,7 @@
     "@effect/platform": "^0.96.0",
     "@effect/platform-browser": "^0.76.0",
     "@solidjs/router": "^0.16.1",
+    "@supabase/supabase-js": "^2.103.3",
     "effect": "^3.21.1",
     "lucide-solid": "^1.7.0",
     "solid-js": "^1.9.5"

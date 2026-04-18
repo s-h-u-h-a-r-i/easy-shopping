@@ -41,9 +41,18 @@
   &:hover {
     text-shadow: 0 0 12px var(--primary);
 
+    .icon {
+      filter: drop-shadow(0 0 8px var(--primary))
+        drop-shadow(0 0 3px var(--primary));
+    }
+
     @media (prefers-color-scheme: light) {
       text-shadow: none;
       border-bottom-width: 2px;
+
+      .icon {
+        filter: none;
+      }
     }
   }
 }
@@ -73,9 +82,17 @@
   &:hover {
     text-shadow: 0 0 12px var(--destructive);
 
+    .icon {
+      filter: drop-shadow(0 0 6px var(--destructive));
+    }
+
     @media (prefers-color-scheme: light) {
       text-shadow: none;
       border-bottom-width: 2px;
+
+      .icon {
+        filter: none;
+      }
     }
   }
 }
@@ -106,6 +123,7 @@
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
+  transition: filter 150ms ease;
 }
 
 .label {
