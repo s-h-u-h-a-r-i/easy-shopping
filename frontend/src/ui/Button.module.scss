@@ -11,6 +11,8 @@
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
   transition:
     background 150ms ease,
     color 150ms ease,
@@ -27,6 +29,10 @@
   &.loading {
     opacity: 0.5;
     pointer-events: none;
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 

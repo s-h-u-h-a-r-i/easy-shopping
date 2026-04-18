@@ -11,8 +11,8 @@ import styles from './Button.module.scss';
 
 type AsProp = keyof HTMLElementTagNameMap | Component<any>;
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
-type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 type ButtonOwnProps = {
   variant?: ButtonVariant;
