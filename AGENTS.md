@@ -147,6 +147,7 @@ app/modules/<module>/
 - **Component structure:** `src/ui/<Component>/` with `Component.tsx`, `Component.module.scss`, `index.ts`
 - **Routing:** `@solidjs/router` config-based routing (`router.ts` exports `RouteDefinition[]`); `Layout.tsx` passed as `root` prop to `<Router>` — receives `props.children` directly, no `<Outlet />` needed
 - **Architecture — dependency direction is strictly downward:**
+
   ```
   pages → features → ui
   ```
@@ -154,7 +155,23 @@ app/modules/<module>/
   - `ui/` — pure presentational components, no feature or page imports
   - `features/` — self-contained domain logic and components, no page imports
   - `pages/` — assembles features and ui components into views
+
 - **File structure per ui component:** `src/ui/<Component>/Component.tsx`, `Component.module.scss`, `index.ts`
+
+## Visual Design Language
+
+The UI is text-forward and weightless. Surfaces carry no fills; interaction is expressed through colour, borders, and light rather than boxes and backgrounds.
+
+**Core principles:**
+
+- **No filled surfaces for interactive elements** — buttons, inputs, and controls use `background: none`. The only fills are structural (sidebar, bottom nav, cards as content containers).
+- **Bottom borders, not boxes** — interactive elements signal their boundary with a single `border-bottom`, not a full border-radius rectangle. This applies to buttons, text inputs, and similar controls.
+- **Colour and glow for state** — active/focus/hover states shift `color` and `border-color`. In dark mode, primary and destructive actions use a `text-shadow` glow (e.g. `0 0 12px var(--primary)`) instead of a fill change. In light mode the glow is replaced with a thicker bottom border or a faint `color-mix` tint.
+- **No border-radius on interactive elements** — `border-radius: 0` on inputs and buttons. Structural containers (cards, modals) may use a small radius if appropriate.
+- **Muted foreground for secondary text and idle labels** — `var(--muted-foreground)` for labels, placeholders, ghost actions, and anything not currently in focus. `var(--foreground)` on hover/active.
+- **Typography carries the hierarchy** — section labels use `font-size: 0.75rem`, `text-transform: uppercase`, `letter-spacing: 0.07–0.08em`. Body and interactive text sit at `0.875–0.9375rem`. No decorative heading sizes inside views.
+- **Transitions are subtle and fast** — `150ms ease` on `color`, `border-color`, `text-shadow`, `opacity`. No transform-based hover effects (no scale, no translate).
+- **Spacing via gap, not margin** — flex/grid layouts use `gap`; elements do not set their own external margins.
 
 ## Development Progress
 

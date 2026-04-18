@@ -39,12 +39,12 @@ const ButtonsPage = () => {
       </DemoSection>
 
       <DemoSection title="Icons">
-        <Button startIcon={<IconPlus size={20} />}>Start icon</Button>
-        <Button endIcon={<IconArrowRight size={20} />}>End icon</Button>
+        <Button startIcon={<IconPlus size={18} />}>Start icon</Button>
+        <Button endIcon={<IconArrowRight size={18} />}>End icon</Button>
         <Button
-          startIcon={<IconTrash size={20} />}
+          startIcon={<IconTrash size={18} />}
           variant="destructive"
-          endIcon={<IconArrowRight size={20} />}>
+          endIcon={<IconArrowRight size={18} />}>
           Both icons
         </Button>
       </DemoSection>

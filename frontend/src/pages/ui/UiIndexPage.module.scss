@@ -20,10 +20,16 @@
     border-left: 1px solid var(--border);
   }
 
-  &:hover,
   &.active {
     color: var(--foreground);
     text-shadow: 0 0 12px var(--foreground);
+  }
+
+  @media (prefers-color-scheme: light) {
+    &.active {
+      text-shadow: none;
+      color: var(--primary);
+    }
   }
 }
 

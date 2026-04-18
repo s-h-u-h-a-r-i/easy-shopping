@@ -13,6 +13,10 @@ export const routes: RouteDefinition[] = [
         path: '/buttons',
         component: lazy(() => import('./pages/ui/buttons/ButtonsPage')),
       },
+      {
+        path: '/inputs',
+        component: lazy(() => import('./pages/ui/inputs/InputsPage')),
+      },
     ],
   },
 ];
