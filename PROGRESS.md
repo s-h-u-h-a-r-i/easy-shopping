@@ -36,4 +36,4 @@
 
 - AI list generation — endpoint + `generation_sessions` schema
 - Frontend UI
-- Offline support (local-only items via localStorage)
+- Offline support — strategy documented in `PWA.md`; implementation deferred until shopping list feature is built
