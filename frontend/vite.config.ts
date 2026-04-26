@@ -18,6 +18,7 @@ export default defineConfig(() => {
           name: 'Easy Shopping',
           short_name: 'Shopping',
           start_url: '/',
+          id: '/',
           display: 'standalone',
           background_color: '#0a0a0a',
           theme_color: '#0a0a0a',
