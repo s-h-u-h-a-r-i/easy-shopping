@@ -4,11 +4,7 @@ html {
 }
 
 body {
-  font-family:
-    'DM Sans',
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: var(--font-family);
   font-weight: var(--font-weight-normal);
   color: var(--foreground);
   background: var(--background);
