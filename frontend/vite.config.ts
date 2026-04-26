@@ -14,6 +14,9 @@ export default defineConfig(() => {
         strategies: 'injectManifest',
         srcDir: 'src',
         filename: 'sw.ts',
+        injectManifest: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        },
         manifest: {
           name: 'Easy Shopping',
           short_name: 'Shopping',
