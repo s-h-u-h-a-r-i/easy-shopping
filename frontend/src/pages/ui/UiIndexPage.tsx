@@ -3,7 +3,7 @@ import { Component, Index } from 'solid-js';
 
 import styles from './UiIndexPage.module.scss';
 
-const uiDemoPages = ['buttons', 'inputs'] as const;
+const uiDemoPages = ['buttons', 'inputs', 'checkboxes'] as const;
 
 const UiIndexPage: Component<RouteSectionProps> = (props) => {
   const navigator = useNavigate();

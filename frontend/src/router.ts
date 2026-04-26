@@ -17,6 +17,10 @@ export const routes: RouteDefinition[] = [
         path: '/inputs',
         component: lazy(() => import('./pages/ui/inputs/InputsPage')),
       },
+      {
+        path: '/checkboxes',
+        component: lazy(() => import('./pages/ui/checkboxes/CheckboxesPage')),
+      },
     ],
   },
 ];
