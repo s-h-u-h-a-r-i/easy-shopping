@@ -23,12 +23,24 @@ export function deriveTokens(slot: SlotTheme, shared: SharedTokens) {
   const priFg = pri.luminance() > 0.179 ? '#1a1a1a' : '#ffffff';
 
   return {
+    /* Typography */
+    '--font-family': shared.fontFamily,
+    '--font-weight-medium': '500',
+    '--font-weight-normal': '400',
+
+    /* Radius & layout */
+    '--radius': RADIUS_MAP[shared.radius],
+    '--sidebar-width': '280px',
+
+    /* Core surfaces */
     '--background': chroma(slot.background).hex(),
     '--foreground': fg,
     '--card': card,
     '--card-foreground': fg,
     '--popover': card,
     '--popover-foreground': fg,
+
+    /* Accent colors */
     '--primary': chroma(slot.primary).hex(),
     '--primary-foreground': priFg,
     '--secondary': muted,
@@ -39,13 +51,17 @@ export function deriveTokens(slot: SlotTheme, shared: SharedTokens) {
     '--accent-foreground': fg,
     '--destructive': '#ef4444',
     '--destructive-foreground': '#ffffff',
+
+    /* Borders & inputs */
     '--border': border,
     '--input': 'transparent',
     '--input-background': card,
-    '--switch-background': switchBg,
-    '--font-weight-medium': '500',
-    '--font-weight-normal': '400',
     '--ring': chroma(slot.primary).hex(),
+
+    /* Switches */
+    '--switch-background': switchBg,
+
+    /* Sidebar */
     '--sidebar': sidebar,
     '--sidebar-foreground': fg,
     '--sidebar-primary': chroma(slot.primary).hex(),
@@ -54,8 +70,5 @@ export function deriveTokens(slot: SlotTheme, shared: SharedTokens) {
     '--sidebar-accent-foreground': fg,
     '--sidebar-border': border,
     '--sidebar-ring': chroma(slot.primary).hex(),
-    '--sidebar-width': '280px',
-    '--radius': RADIUS_MAP[shared.radius],
-    '--font-family': shared.fontFamily,
   };
 }
