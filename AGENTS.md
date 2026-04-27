@@ -65,10 +65,10 @@ easy-shopping/
 profiles              extends auth.users; username (unique, for invite lookup), display_name
 products              global catalogue; barcode (unique), name, brand, category, image_url
 list_groups           personal collections owned by a user; used to organise lists and scope AI generation
-shopping_lists        status: active | shopping | completed; group_id (nullable FK list_groups); created_by
+shopping_lists        status: idle | shopping; group_id (nullable FK list_groups); created_by
 shopping_list_members list_id + user_id + role (owner | editor | viewer)
 list_invites          list_id, invited_by, invited_user_id, role, status (pending | accepted | declined)
-list_items            list_id, product_id (NOT NULL — every saved item must reference a product), quantity, unit, checked
+list_items            list_id, product_id (NOT NULL — every saved item must reference a product), quantity, is_skipped, checked
 list_snapshots        created when user clicks "finished shopping"; accessible to owner + editors only
 snapshot_items        denormalised product name/brand/category at snapshot time + product_id (nullable)
 ```
@@ -81,6 +81,10 @@ snapshot_items        denormalised product name/brand/category at snapshot time 
 - List groups are personal (owner only) — shared lists appear in a "shared with me" view for other members
 - AI list generation is deferred — history data (snapshots) is in place to support it when ready
 - `generation_sessions` deferred — will be added when AI generation is implemented
+- `shopping_lists.status` is `idle | shopping` only — `completed` was removed; the snapshot mechanism captures history, the list itself reverts to `idle` when shopping ends
+- `list_items` has no `unit` column — units are part of the product name (e.g. "Oat milk 1L"); a separate unit field would require enforcing a unit system and still produces nonsense for fixed-size packages
+- `list_items.is_skipped` — lets users set items aside during a trip without removing or checking them; visible in a collapsed "Set aside" section
+- Sharing uses the `list_invites` flow (pending → accepted/declined); no immediate access grant
 
 ## FastAPI Backend Notes
 
