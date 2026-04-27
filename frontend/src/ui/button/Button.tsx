@@ -7,7 +7,7 @@ import {
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
-import styles from './Button.module.scss';
+import * as styles from './Button.css';
 
 type AsProp = keyof HTMLElementTagNameMap | Component<any>;
 
@@ -48,10 +48,10 @@ const Button = <T extends AsProp = 'button'>(props: ButtonProps<T>) => {
   const classes = () =>
     [
       styles.button,
-      styles[size()],
-      styles[variant()],
+      styles.sizeStyles[size()],
+      styles.variantStyles[variant()],
       local.fullWidth && styles.fullWidth,
-      local.loading && styles.loading,
+      local.loading && styles.loadingState,
       local.class,
     ]
       .filter(Boolean)

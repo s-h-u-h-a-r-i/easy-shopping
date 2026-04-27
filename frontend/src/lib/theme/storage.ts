@@ -1,9 +1,10 @@
 import { storage, STORAGE_KEY } from '../storage';
-import { DEFAULT_THEME_PREFS } from './defaults';
 import type { UserThemePreference } from './types';
 
+const DEFAULT_PREFS: UserThemePreference = { light: null, dark: null, shared: {} };
+
 export function loadThemePrefs(): UserThemePreference {
-  return storage.get(STORAGE_KEY.ES_THEME) ?? DEFAULT_THEME_PREFS;
+  return storage.get(STORAGE_KEY.ES_THEME) ?? DEFAULT_PREFS;
 }
 
 export function saveThemePrefs(prefs: UserThemePreference) {

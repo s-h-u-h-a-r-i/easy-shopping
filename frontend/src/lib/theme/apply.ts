@@ -1,26 +1,47 @@
-import { BUILT_IN_DARK, BUILT_IN_LIGHT } from './defaults';
-import { deriveTokens } from './derive';
-import type { UserThemePreference } from './types';
+import { vars } from '../../styles/contract.css';
+import type { Radius, UserThemePreference } from './types';
+
+const RADIUS_MAP: Record<Radius, string> = {
+  none: '0',
+  sm: '0.375rem',
+  md: '0.75rem',
+  lg: '1.25rem',
+};
 
 const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 let currentPrefs: UserThemePreference | null = null;
 
-darkQuery.addEventListener('change', (e) => applySlot(e.matches));
+darkQuery.addEventListener('change', () => apply());
 
 export function applyTheme(prefs: UserThemePreference): void {
   currentPrefs = prefs;
-  applySlot(darkQuery.matches);
+  apply();
 }
 
-function applySlot(isDark: boolean): void {
+/** Strips the `var(` / `)` wrapper VE puts on every contract leaf. */
+function varName(cssVar: string): string {
+  return cssVar.slice(4, -1);
+}
+
+function setOrRemove(cssVar: string, value: string | undefined): void {
+  const prop = varName(cssVar);
+  if (value) document.documentElement.style.setProperty(prop, value);
+  else document.documentElement.style.removeProperty(prop);
+}
+
+function apply(): void {
   if (!currentPrefs) return;
-  const slot = isDark
-    ? (currentPrefs.dark ?? BUILT_IN_DARK)
-    : (currentPrefs.light ?? BUILT_IN_LIGHT);
-  const tokens = deriveTokens(slot, currentPrefs.shared);
-  const root = document.documentElement;
-  for (const [k, v] of Object.entries(tokens)) {
-    root.style.setProperty(k, v);
-  }
+  const slot = darkQuery.matches ? currentPrefs.dark : currentPrefs.light;
+
+  // Slot overrides — only the 4 user-settable colors; everything else derives in CSS
+  setOrRemove(vars.color.background, slot?.background);
+  setOrRemove(vars.color.foreground, slot?.foreground);
+  setOrRemove(vars.color.primary, slot?.primary);
+  setOrRemove(vars.color.primaryForeground, slot?.primaryForeground);
+
+  // Shared overrides
+  setOrRemove(vars.font.family, currentPrefs.shared.fontFamily);
+  const r = currentPrefs.shared.radius;
+  setOrRemove(vars.layout.radius, r ? RADIUS_MAP[r] : undefined);
 }

@@ -5,7 +5,7 @@ import { For, ParentComponent } from 'solid-js';
 
 import Button, { ButtonSize, type ButtonVariant } from '@/ui/button';
 
-import styles from './ButtonsPage.module.scss';
+import * as styles from './ButtonsPage.css';
 
 const variantEntries: ReadonlyArray<[ButtonVariant, string]> = [
   ['primary', 'Primary'],

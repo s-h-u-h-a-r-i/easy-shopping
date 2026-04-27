@@ -4,7 +4,7 @@ import { Index, ParentComponent } from 'solid-js';
 
 import Input, { InputSize } from '@/ui/input';
 
-import styles from './InputsPage.module.scss';
+import * as styles from './InputsPage.css';
 
 const sizeEntries: ReadonlyArray<{
   readonly size: InputSize;

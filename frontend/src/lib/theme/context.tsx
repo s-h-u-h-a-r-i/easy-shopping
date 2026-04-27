@@ -9,9 +9,8 @@ import {
 } from 'solid-js';
 
 import { applyTheme } from './apply';
-import { DEFAULT_SHARED } from './defaults';
 import { loadThemePrefs, saveThemePrefs } from './storage';
-import { SharedTokens, SlotTheme, UserThemePreference } from './types';
+import { SharedOverrides, SlotOverrides, UserThemePreference } from './types';
 
 type ThemeContextValue = {
   prefs: Accessor<UserThemePreference>;
@@ -21,9 +20,9 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue>();
 
 export const ThemeProvider: ParentComponent = (props) => {
-  const [light, setLight] = createSignal<SlotTheme | null>(null);
-  const [dark, setDark] = createSignal<SlotTheme | null>(null);
-  const [shared, setShared] = createSignal<SharedTokens>(DEFAULT_SHARED);
+  const [light, setLight] = createSignal<SlotOverrides | null>(null);
+  const [dark, setDark] = createSignal<SlotOverrides | null>(null);
+  const [shared, setShared] = createSignal<SharedOverrides>({});
 
   const prefs = createMemo<UserThemePreference>(() => ({
     light: light(),

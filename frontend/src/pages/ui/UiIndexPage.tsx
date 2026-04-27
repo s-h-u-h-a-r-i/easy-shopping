@@ -1,7 +1,7 @@
 import { A, RouteSectionProps, useNavigate } from '@solidjs/router';
 import { Component, Index } from 'solid-js';
 
-import styles from './UiIndexPage.module.scss';
+import * as styles from './UiIndexPage.css';
 
 const uiDemoPages = ['buttons', 'inputs', 'checkboxes'] as const;
 
@@ -16,7 +16,7 @@ const UiIndexPage: Component<RouteSectionProps> = (props) => {
             <A
               href={page()}
               class={styles.navItem}
-              activeClass={styles.active}
+              activeClass={styles.navItemActive}
               onMouseEnter={() => navigator(page())}>
               {page()}
             </A>

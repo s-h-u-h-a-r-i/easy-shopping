@@ -2,7 +2,7 @@ import { Index, ParentComponent, createSignal } from 'solid-js';
 
 import Checkbox, { CheckboxSize } from '@/ui/checkbox';
 
-import styles from './CheckboxesPage.module.scss';
+import * as styles from './CheckboxesPage.css';
 
 const sizeEntries: ReadonlyArray<{
   readonly size: CheckboxSize;

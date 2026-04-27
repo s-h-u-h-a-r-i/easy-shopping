@@ -1,5 +1,6 @@
 import { ParentComponent } from 'solid-js';
-import styles from './Layout.module.scss';
+
+import * as styles from './Layout.css';
 
 const Layout: ParentComponent = (props) => (
   <div class={styles.layout}>

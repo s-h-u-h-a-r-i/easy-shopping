@@ -1,12 +1,3 @@
-import { Color } from 'chroma-js';
-
-export interface SlotTheme {
-  id: string;
-  name: string;
-  background: Color;
-  primary: Color;
-}
-
 export const Radius = {
   none: 'none',
   sm: 'sm',
@@ -16,13 +7,20 @@ export const Radius = {
 
 export type Radius = (typeof Radius)[keyof typeof Radius];
 
-export interface SharedTokens {
-  fontFamily: string;
-  radius: Radius;
+export interface SlotOverrides {
+  background?: string;
+  foreground?: string;
+  primary?: string;
+  primaryForeground?: string;
+}
+
+export interface SharedOverrides {
+  fontFamily?: string;
+  radius?: Radius;
 }
 
 export interface UserThemePreference {
-  light: SlotTheme | null;
-  dark: SlotTheme | null;
-  shared: SharedTokens;
+  light: SlotOverrides | null;
+  dark: SlotOverrides | null;
+  shared: SharedOverrides;
 }

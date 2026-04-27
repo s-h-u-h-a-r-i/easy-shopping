@@ -7,7 +7,7 @@ import {
   type JSX,
 } from 'solid-js';
 
-import styles from './Input.module.scss';
+import * as styles from './Input.css';
 
 export type InputSize = 'sm' | 'md' | 'lg';
 
@@ -46,9 +46,9 @@ const Input: Component<InputProps> = (props) => {
   const fieldClasses = () =>
     [
       styles.field,
-      styles[size()],
+      styles.sizeStyles[size()],
       local.fullWidth && styles.fullWidth,
-      local.error && styles.error,
+      local.error && styles.fieldError,
       local.class,
     ]
       .filter(Boolean)
@@ -69,13 +69,13 @@ const Input: Component<InputProps> = (props) => {
 
       <div class={styles.inputRow}>
         <Show when={local.startIcon}>
-          <span class={styles.icon} aria-hidden="true">
+          <span class={styles.iconSlot} aria-hidden="true">
             {local.startIcon}
           </span>
         </Show>
 
         <input
-          class={styles.input}
+          class={styles.inputEl}
           id={id}
           aria-describedby={describedBy()}
           aria-invalid={!!local.error || undefined}
@@ -83,7 +83,7 @@ const Input: Component<InputProps> = (props) => {
         />
 
         <Show when={local.endIcon}>
-          <span class={styles.icon} aria-hidden="true">
+          <span class={styles.iconSlot} aria-hidden="true">
             {local.endIcon}
           </span>
         </Show>

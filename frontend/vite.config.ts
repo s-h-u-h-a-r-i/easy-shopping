@@ -1,3 +1,4 @@
+import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { resolve } from 'path';
 import devtools from 'solid-devtools/vite';
 import { defineConfig } from 'vite';
@@ -8,6 +9,7 @@ export default defineConfig(() => {
   return {
     plugins: [
       devtools(),
+      vanillaExtractPlugin(),
       solidPlugin(),
       VitePWA({
         registerType: 'autoUpdate',

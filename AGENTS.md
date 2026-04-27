@@ -137,14 +137,13 @@ app/modules/<module>/
 - Uses `@supabase/supabase-js` for auth and direct DB reads where appropriate
 - Calls FastAPI for AI-related endpoints
 - Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`
-- **Styling: SCSS Modules** — every component has a co-located `.module.scss` file; global styles in `src/styles/`
+- **Styling: Vanilla Extract** — TypeScript-first CSS-in-JS; every component has a co-located `.css.ts` file; global styles in `src/styles/`
 - **Global styles structure:**
-  - `src/styles/index.scss` — entry point, imports all partials
-  - `src/styles/_theme.scss` — CSS custom properties (light + dark via media query)
-  - `src/styles/_reset.scss` — box model reset
-  - `src/styles/_typography.scss` — base font and heading rules
-  - `src/styles/_layout.scss` — `#root`, `html`, `body` base layout
-- **Component structure:** `src/ui/<Component>/` with `Component.tsx`, `Component.module.scss`, `index.ts`
+  - `src/styles/contract.css.ts` — theme contract; single source of truth for ALL CSS variable names (typed via `createThemeContract`)
+  - `src/styles/default.css.ts` — default light/dark token values; derived tokens (card, border, muted) use CSS `color-mix()` / `oklch()` relative color to auto-update from background overrides
+  - `src/styles/global.css.ts` — reset, typography, layout, scrollbar (replaces all `.scss` partials)
+  - `src/styles/breakpoints.ts` — breakpoint constants (`bp.tablet`, etc.) used in `.css.ts` files
+- **Component structure:** `src/ui/<Component>/` with `Component.tsx`, `Component.css.ts`, `index.ts`
 - **Routing:** `@solidjs/router` config-based routing (`router.ts` exports `RouteDefinition[]`); `Layout.tsx` passed as `root` prop to `<Router>` — receives `props.children` directly, no `<Outlet />` needed
 - **Architecture — dependency direction is strictly downward:**
 
@@ -156,7 +155,7 @@ app/modules/<module>/
   - `features/` — self-contained domain logic and components, no page imports
   - `pages/` — assembles features and ui components into views
 
-- **File structure per ui component:** `src/ui/<Component>/Component.tsx`, `Component.module.scss`, `index.ts`
+- **File structure per ui component:** `src/ui/<Component>/Component.tsx`, `Component.css.ts`, `index.ts`
 
 ### Frontend Architecture — Effect Pattern
 

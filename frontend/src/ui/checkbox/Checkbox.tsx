@@ -1,7 +1,7 @@
 import IconCheck from 'lucide-solid/icons/check';
 import { Component, ComponentProps, ParentComponent, Show, splitProps } from 'solid-js';
 
-import styles from './Checkbox.module.scss';
+import * as styles from './Checkbox.css';
 
 export type CheckboxSize = 'sm' | 'md' | 'lg';
 
@@ -27,8 +27,7 @@ const Checkbox: ParentComponent<CheckboxProps> = (props) => {
   const classes = () =>
     [
       styles.checkbox,
-      styles[size()],
-      rest.disabled && styles.disabled,
+      rest.disabled && styles.disabledState,
       local.class,
     ]
       .filter(Boolean)
@@ -37,9 +36,8 @@ const Checkbox: ParentComponent<CheckboxProps> = (props) => {
   const controlClasses = () =>
     [
       styles.control,
-      rest.checked && styles.checked,
-      local.indeterminate && styles.indeterminate,
-      rest.disabled && styles.disabled,
+      styles.controlSizes[size()],
+      (rest.checked || local.indeterminate) && styles.checkedControl,
     ]
       .filter(Boolean)
       .join(' ');
@@ -57,7 +55,7 @@ const Checkbox: ParentComponent<CheckboxProps> = (props) => {
       />
       <span class={controlClasses()} aria-hidden="true">
         <Show when={rest.checked && !local.indeterminate}>
-          <IconCheck class={styles.icon} />
+          <IconCheck class={styles.iconSizes[size()]} />
         </Show>
         <Show when={local.indeterminate}>
           <span class={styles.indeterminateDash} />
