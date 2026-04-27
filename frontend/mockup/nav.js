@@ -1,12 +1,15 @@
 // ── Breadcrumb ────────────────────────────────────────────────────────────────
 
-const LABELS = {
-  home: 'easy shopping', lists: 'Lists', groups: 'Groups',
-  shared: 'Shared', profile: 'Profile',
-  ...Object.fromEntries(LISTS.map(l => [l.id, l.label])),
-  ...Object.fromEntries(GROUPS.map(g => [g.id, g.label])),
-  ...Object.fromEntries(SHARED.map(s => [s.id, s.label])),
-};
+// Resolved at call time so IDs are always current for the active user.
+function resolveLabel(id) {
+  const fixed = { home: 'easy shopping', lists: 'Lists', groups: 'Groups', shared: 'Shared', profile: 'Profile' };
+  if (fixed[id]) return fixed[id];
+  const list  = dbLists().find(l => l.id === id) || dbSharedWithMe().find(s => s.id === id);
+  if (list)  return list.label;
+  const group = dbGroups().find(g => g.id === id);
+  if (group) return group.label;
+  return id;
+}
 
 let trail = [{ id: 'home', label: 'easy shopping' }];
 
@@ -14,14 +17,12 @@ function renderBreadcrumb() {
   const bc = document.getElementById('breadcrumb');
   bc.innerHTML = '';
 
-  // Drop the current page (last item) — breadcrumb is navigation context only.
-  // At home (depth 1) there is nothing to drop, just show home.
-  const ancestors      = trail.length > 1 ? trail.slice(0, -1) : trail;
-  const hasCurrentPage = trail.length > 1;
+  const current   = trail[trail.length - 1];
+  const ancestors = trail.slice(0, -1);  // everything before the current page
 
-  // Truncate long trails: keep [first, '..', last-1, last]
-  const display = ancestors.length > 3
-    ? [ancestors[0], null, ancestors[ancestors.length - 2], ancestors[ancestors.length - 1]]
+  // Truncate long ancestor chains: keep [first, '..', last]
+  const display = ancestors.length > 2
+    ? [ancestors[0], null, ancestors[ancestors.length - 1]]
     : ancestors;
 
   display.forEach((crumb, i) => {
@@ -45,19 +46,26 @@ function renderBreadcrumb() {
     }
   });
 
-  if (hasCurrentPage) {
+  // Always show the current page as a non-clickable label
+  if (ancestors.length > 0) {
     const sep = document.createElement('span');
     sep.className = 'crumb-sep';
     sep.textContent = '/';
     bc.appendChild(sep);
   }
+  const cur = document.createElement('span');
+  cur.className = 'crumb crumb-current';
+  cur.textContent = current.label;
+  bc.appendChild(cur);
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 function navigateTo(id, fromBreadcrumb = false) {
+  const target = document.getElementById('view-' + id);
+  if (!target) return;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + id).classList.add('active');
+  target.classList.add('active');
 
   if (fromBreadcrumb) {
     const idx = trail.findIndex(c => c.id === id);
@@ -66,7 +74,7 @@ function navigateTo(id, fromBreadcrumb = false) {
     trail = [{ id: 'home', label: 'easy shopping' }];
   } else {
     if (trail[trail.length - 1].id !== id) {
-      trail.push({ id, label: LABELS[id] || id });
+      trail.push({ id, label: resolveLabel(id) });
     }
   }
 
@@ -77,7 +85,8 @@ function navigateTo(id, fromBreadcrumb = false) {
 // Inserts 'Lists' into the trail unless already inside a group context.
 // Breadcrumb: easy shopping / Lists / Weekly groceries
 function navigateToList(id, label) {
-  const inGroup = trail.some(c => GROUPS.some(g => g.id === c.id));
+  dbRecordVisit(id);
+  const inGroup = trail.some(c => dbGroups().some(g => g.id === c.id));
   if (!inGroup && !trail.find(c => c.id === 'lists')) {
     trail.push({ id: 'lists', label: 'Lists' });
   }
@@ -86,6 +95,7 @@ function navigateToList(id, label) {
   }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
+  renderRecentList();
   renderBreadcrumb();
   syncBottomNav('lists');
 }
@@ -108,14 +118,16 @@ function navigateToGroup(id, label) {
 // Inserts 'Shared' into the trail if missing.
 // Breadcrumb: easy shopping / Shared / Family shop
 function navigateToSharedList(id, label) {
-  if (!trail.find(c => c.id === 'shared')) {
-    trail.push({ id: 'shared', label: 'Shared' });
+  dbRecordVisit(id);
+  if (!trail.find(c => c.id === 'lists')) {
+    trail.push({ id: 'lists', label: 'Lists' });
   }
   if (trail[trail.length - 1].id !== id) {
     trail.push({ id, label });
   }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
+  renderRecentList();
   renderBreadcrumb();
   syncBottomNav('shared');
 }

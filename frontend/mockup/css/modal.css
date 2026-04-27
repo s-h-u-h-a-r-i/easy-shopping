@@ -89,6 +89,8 @@
   min-height: 1.2em;
   margin-top: 10px;
 }
+.modal-feedback.error { color: #ef4444; }
+.modal-feedback.success { color: #22c55e; }
 
 /* ── Collaborator rows ── */
 

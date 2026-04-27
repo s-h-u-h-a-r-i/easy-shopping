@@ -1,178 +1,88 @@
 // ── Dev panel — mockup-only scaffolding, not part of the real app ─────────────
 
-// ── Seed pools ────────────────────────────────────────────────────────────────
-
-const DP_LIST_NAMES = [
-  'Weekly groceries', 'Pharmacy run', 'Weekend BBQ', 'Monthly stock-up',
-  'Birthday party', 'Office supplies', 'Hardware store', 'Farmers market',
-  'Baby essentials', 'Camping trip', 'Holiday feast', 'Meal prep Sunday',
-  'Quick snack run', 'Electronics run', 'Garden centre', 'Cleaning supplies',
-  'Pet supplies', 'Sports gear', 'Book shopping', 'Travel essentials',
-  'Back-to-school', 'Date night', 'Picnic prep', 'Winter wardrobe',
-  'Gym bag refill', 'Movie night', 'Car service', 'Work lunches',
-  'Rainy day stock', 'New year haul',
-];
-
-const DP_GROUP_NAMES = [
-  'Household', 'Personal', 'Work snacks', 'Family', 'Sports',
-  'Travel', 'Health', 'Hobbies', 'School', 'Finance',
-];
-
-const DP_SHARED_PEOPLE = [
-  { name: 'Lena', initials: 'LE' },
-  { name: 'Sara', initials: 'SA' },
-  { name: 'Tom',  initials: 'TM' },
-  { name: 'Mia',  initials: 'MI' },
-  { name: 'Jake', initials: 'JK' },
-];
-
-const DP_SHARED_NAMES = [
-  'Family shop', 'Office run', 'Party prep', 'Weekend trip', 'Movie night snacks',
-];
-
-const DP_ITEMS = [
-  { name: 'Oat milk',         qty: '2 × 1L'  },
-  { name: 'Free-range eggs',  qty: '12'       },
-  { name: 'Sourdough bread',  qty: '1 loaf'   },
-  { name: 'Greek yoghurt',    qty: '500g'     },
-  { name: 'Cherry tomatoes',  qty: '250g'     },
-  { name: 'Pasta (penne)',    qty: '500g'     },
-  { name: 'Ibuprofen 400mg',  qty: '1 pack'   },
-  { name: 'Vitamin D3',       qty: '1 bottle' },
-  { name: 'Hand cream',       qty: '1'        },
-  { name: 'Plasters',         qty: '1 box'    },
-  { name: 'Burger buns',      qty: '8'        },
-  { name: 'Beef mince 500g',  qty: '3'        },
-  { name: 'Charcoal',         qty: '1 bag'    },
-  { name: 'Whole milk',       qty: '2L'       },
-  { name: 'Sliced bread',     qty: '1 loaf'   },
-  { name: 'Cheddar cheese',   qty: '400g'     },
-  { name: 'Orange juice',     qty: '1L'       },
-  { name: 'Bananas',          qty: '6'        },
-  { name: 'Shampoo',          qty: '1 bottle' },
-  { name: 'Toothpaste',       qty: '2'        },
-];
-
 // ── State ─────────────────────────────────────────────────────────────────────
 
 const DEV = {
-  listCount:      4,
-  groupCount:     3,
-  sharedCount:    1,
-  sharedByMeCount: 1,
-  itemsPerList: 6,
-  activeRatio: 50,   // % of lists that are active (rest = completed)
-  username:    'Ahmed',
-  greeting:    'random',
-  role:        'owner', // owner | editor | viewer
+  greeting: 'random',
 };
 
-// ── Generators ────────────────────────────────────────────────────────────────
+// ── Pending invites strip ─────────────────────────────────────────────────────
 
-function dpGenerateLists() {
-  const activeCount = Math.round(DEV.listCount * DEV.activeRatio / 100);
-  const statuses    = ['active', 'shopping'];
-  const baseItems   = DP_ITEMS.slice(0, DEV.itemsPerList).map(it => ({ ...it }));
-  const groupSlots  = Math.max(1, DEV.groupCount);
-
-  return Array.from({ length: DEV.listCount }, (_, i) => {
-    const name  = DP_LIST_NAMES[i % DP_LIST_NAMES.length];
-    const id    = `list-gen-${i}`;
-    const group = DP_GROUP_NAMES[i % groupSlots];
-
-    if (i < activeCount) {
-      return {
-        id, label: name,
-        status: statuses[i % statuses.length],
-        group,
-        itemCount: DEV.itemsPerList,
-        items: baseItems,
-      };
-    }
-    return {
-      id, label: name,
-      status: 'completed',
-      date: `Apr ${1 + (i % 28)}`,
-      itemCount: DEV.itemsPerList,
-      items: baseItems.length ? baseItems.map(it => ({ ...it, checked: true })) : undefined,
-    };
-  });
-}
-
-function dpGenerateGroups() {
-  return DP_GROUP_NAMES.slice(0, DEV.groupCount).map((name, i) => ({
-    id:        `group-gen-${i}`,
-    label:     name,
-    listCount: Math.max(1, Math.round(DEV.listCount / Math.max(1, DEV.groupCount))),
-  }));
-}
-
-function dpGenerateCollaborators(lists) {
-  // Wipe existing keys
-  Object.keys(COLLABORATORS).forEach(k => delete COLLABORATORS[k]);
-  const count = Math.min(DEV.sharedByMeCount, lists.length);
-  for (let i = 0; i < count; i++) {
-    const person = DP_SHARED_PEOPLE[i % DP_SHARED_PEOPLE.length];
-    COLLABORATORS[lists[i].id] = [{ name: person.name, initials: person.initials, role: 'editor' }];
+function renderPendingInvites() {
+  const container = document.getElementById('pending-invites-strip');
+  if (!container) return;
+  const invites = dbPendingInvitesForMe();
+  if (invites.length === 0) {
+    container.innerHTML = '';
+    return;
   }
+  container.innerHTML = `
+    <div class="recent-strip" style="margin-bottom:0;padding-bottom:20px;border-bottom:1px solid var(--border)">
+      <p class="section-label" style="margin-bottom:12px">Invites</p>
+      ${invites.map(inv => `
+        <div class="invite-row">
+          <div class="invite-row-info">
+            <span class="avatar collab-avatar" style="flex-shrink:0">${inv.ownerInitials}</span>
+            <span class="invite-row-text">
+              <span>${inv.ownerName}</span>
+              <span class="card-meta"> shared </span>
+              <span>${inv.listLabel}</span>
+              <span class="card-meta"> · ${inv.role}</span>
+            </span>
+          </div>
+          <div class="invite-row-actions">
+            <button class="add-btn" onclick="acceptInvite('${inv.listId}')">Accept</button>
+            <button class="share-btn" onclick="declineInvite('${inv.listId}')">Decline</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
 }
 
-function dpGenerateShared() {
-  return DP_SHARED_PEOPLE.slice(0, DEV.sharedCount).map((person, i) => ({
-    id:              `shared-gen-${i}`,
-    label:           DP_SHARED_NAMES[i % DP_SHARED_NAMES.length],
-    status:          'active',
-    sharedBy:        person.name,
-    sharedByInitials: person.initials,
-    role:            'viewer',
-    items:           DP_ITEMS.slice(0, Math.max(1, DEV.itemsPerList)).map(it => ({ ...it })),
-  }));
-}
+// ── Recent strip ──────────────────────────────────────────────────────────────
 
-// ── Constraint sync ───────────────────────────────────────────────────────────
-// Keeps slider max/value/badge in sync when one value constrains another.
-
-const DP_CONSTRAINTS = [
-  // { key, maxFn } — maxFn returns the current ceiling for that key
-  { key: 'sharedByMeCount', maxFn: () => DEV.listCount },
-  { key: 'sharedCount',     maxFn: () => 5 },           // static, here for completeness
-];
-
-function dpSyncConstraints() {
-  for (const { key, maxFn } of DP_CONSTRAINTS) {
-    const max = maxFn();
-    const clamped = Math.min(DEV[key], max);
-
-    // Clamp the state value silently (no re-apply loop)
-    DEV[key] = clamped;
-
-    // Update the slider element
-    const slider = document.querySelector(`[oninput*="'${key}'"]`);
-    if (slider) {
-      slider.max   = max;
-      slider.value = clamped;
-    }
-
-    // Update the badge
-    const badge = document.getElementById(`dp-val-${key}`);
-    if (badge) badge.textContent = clamped;
+function renderRecentList() {
+  const container = document.getElementById('recent-list');
+  if (!container) return;
+  const recent = dbRecentLists();
+  if (recent.length === 0) {
+    container.innerHTML =
+      '<p class="card-meta" style="padding:6px 0">No recently visited lists.</p>';
+    return;
   }
+  const sharedIds = new Set(dbSharedWithMe().map(s => s.id));
+  container.innerHTML = recent
+    .map((l) => {
+      const isShared = sharedIds.has(l.id);
+      const b = l.status === 'shopping'
+        ? `<span class="badge shopping">shopping</span>` : '';
+      const itemCount = l.itemCount ?? l.items?.length ?? 0;
+      const meta = isShared
+        ? `${itemCount} items · shared`
+        : `${itemCount} items`;
+      const nav = isShared
+        ? `navigateToSharedList('${l.id}', '${l.label.replace(/'/g, "\\'")}')`
+        : `navigateToList('${l.id}', '${l.label.replace(/'/g, "\\'")}')`;
+      return `
+      <div class="recent-row" onclick="${nav}">
+        <span class="recent-name">${l.label} ${b}</span>
+        <span class="recent-meta">${meta}</span>
+      </div>`;
+    })
+    .join('');
 }
 
 // ── Apply ─────────────────────────────────────────────────────────────────────
 
 function dpApply() {
-  // Mutate the global data arrays in-place so views.js keeps reading them
-  LISTS.splice(0, LISTS.length,  ...dpGenerateLists());
-  GROUPS.splice(0, GROUPS.length, ...dpGenerateGroups());
-  SHARED.splice(0, SHARED.length, ...dpGenerateShared());
-  dpGenerateCollaborators(LISTS);
+  const user = getCurrentUser();
 
   // Remember which view is active before wiping dynamic views
   const activeId = document.querySelector('#content .view.active')?.id;
 
-  // Re-render all dynamic views
-  document.querySelectorAll('#content .view:not(#view-home)').forEach(v => v.remove());
+  // Re-render all dynamic views (they read from DB via CURRENT_USER_ID)
+  document
+    .querySelectorAll('#content .view:not(#view-home)')
+    .forEach((v) => v.remove());
   renderViews();
 
   // Restore the active view (fall back to home if it was wiped)
@@ -183,63 +93,80 @@ function dpApply() {
     document.getElementById('view-home')?.classList.add('active');
   }
 
-  // Sync username in top-bar avatar + breadcrumb avatar
-  const name = DEV.username.trim() || 'You';
-  const initials = name.slice(0, 2).toUpperCase();
-  document.querySelectorAll('.avatar:not(.collab-avatar)').forEach(el => {
-    el.textContent = initials;
+  // Sync avatars
+  document.querySelectorAll('.avatar:not(.collab-avatar)').forEach((el) => {
+    el.textContent = user.initials;
   });
 
-  // Sync greeting on home view
+  // Sync greeting
   const greetingEl = document.getElementById('hub-greeting');
   if (greetingEl) {
-    const pool = GREETINGS.map(g => g.replace(/Ahmed/g, name));
+    const pool = GREETINGS.map((g) => g.replace(/Ahmed/g, user.name));
     greetingEl.textContent =
       DEV.greeting === 'random'
         ? pool[Math.floor(Math.random() * pool.length)]
-        : DEV.greeting.replace(/Ahmed/g, name);
+        : DEV.greeting.replace(/Ahmed/g, user.name);
   }
 
-  // Sync home hub stats (active list count, group count, shared count)
-  const activeCount = LISTS.filter(l => l.status !== 'completed').length;
+  // Sync home hub stats
+  const lists         = dbLists();
+  const groups        = dbGroups();
+  const shoppingCount = lists.filter(l => l.status === 'shopping').length;
+
   const hubSub = document.querySelector('.hub-sub');
-  if (hubSub) {
-    hubSub.textContent =
-      `You have ${activeCount} active list${activeCount !== 1 ? 's' : ''}.`;
-  }
+  if (hubSub) hubSub.textContent = shoppingCount
+    ? `${shoppingCount} list${shoppingCount !== 1 ? 's' : ''} in progress.`
+    : 'No active shopping trips.';
   const hubCards = document.querySelectorAll('.hub-card .hub-card-meta');
-  if (hubCards[0]) hubCards[0].textContent = `${activeCount} active`;
-  if (hubCards[1]) hubCards[1].textContent = `${GROUPS.length} group${GROUPS.length !== 1 ? 's' : ''}`;
-  if (hubCards[2]) hubCards[2].textContent = `${SHARED.length} shared`;
-  if (hubCards[3]) hubCards[3].textContent = `@${DEV.username.toLowerCase().replace(/\s+/g, '') || 'you'}`;
+  if (hubCards[0]) hubCards[0].textContent = `${lists.length} list${lists.length !== 1 ? 's' : ''}`;
+  if (hubCards[1]) hubCards[1].textContent = `${groups.length} group${groups.length !== 1 ? 's' : ''}`;
+  if (hubCards[2]) hubCards[2].textContent = `@${user.username}`;
 
-  // Apply role class to shell
-  const shell = document.getElementById('shell');
-  shell.classList.remove('devpanel-role-owner', 'devpanel-role-editor', 'devpanel-role-viewer');
-  if (DEV.role !== 'owner') shell.classList.add(`devpanel-role-${DEV.role}`);
+  // Sync home dynamic strips
+  renderPendingInvites();
+  renderRecentList();
 
-  // Sync slider constraints — clamp dependent values and update slider max/value/badge
-  dpSyncConstraints();
+  // Sync data-scale sliders to this user's settings
+  dpSyncScaleUI(DB.settings[CURRENT_USER_ID]);
+}
+
+function dpSyncScaleUI(s) {
+  const entries = {
+    listCount:     s.listCount,
+    groupCount:    s.groupCount,
+    itemsPerList:  s.itemsPerList,
+    shoppingRatio: s.shoppingRatio,
+  };
+  for (const [key, val] of Object.entries(entries)) {
+    const slider = document.querySelector(`[oninput*="'${key}'"]`);
+    if (slider) slider.value = val;
+    const badge = document.getElementById(`dp-val-${key}`);
+    if (badge) badge.textContent = key === 'shoppingRatio' ? `${val}%` : val;
+  }
 }
 
 // ── Controls ──────────────────────────────────────────────────────────────────
 
+const DP_SCALE_KEYS = new Set(['listCount', 'groupCount', 'itemsPerList', 'shoppingRatio']);
+
 function dpSet(key, rawValue) {
-  const value = typeof DEV[key] === 'number' ? +rawValue : rawValue;
-  DEV[key] = value;
-
-  // Update the numeric badge next to range sliders
-  const badge = document.getElementById(`dp-val-${key}`);
-  if (badge) {
-    badge.textContent = key === 'activeRatio' ? `${value}%` : value;
+  if (key === 'userId') {
+    CURRENT_USER_ID = rawValue;
+  } else if (DP_SCALE_KEYS.has(key)) {
+    DB.settings[CURRENT_USER_ID][key] = +rawValue;
+    dbSeedUserLists(CURRENT_USER_ID);
+    const badge = document.getElementById(`dp-val-${key}`);
+    if (badge)
+      badge.textContent = key === 'shoppingRatio' ? `${rawValue}%` : rawValue;
+  } else {
+    DEV[key] = rawValue;
   }
-
   dpApply();
 }
 
 // ── Open / close ──────────────────────────────────────────────────────────────
 
-function dpOpen()  {
+function dpOpen() {
   document.getElementById('dp-overlay').classList.add('active');
   document.getElementById('dp-drawer').classList.add('active');
 }
@@ -258,12 +185,14 @@ function dpInitDragHandle() {
 
   function onMove(e) {
     const y = e.touches ? e.touches[0].clientY : e.clientY;
-    const delta = startY - y; // drag up → positive → taller
-    const clamped = Math.max(120, Math.min(window.innerHeight * 0.94, startH + delta));
+    const delta = startY - y;
+    const clamped = Math.max(
+      120,
+      Math.min(window.innerHeight * 0.94, startH + delta),
+    );
     drawer.style.maxHeight = clamped + 'px';
     e.preventDefault();
   }
-
   function onEnd() {
     handle.classList.remove('dragging');
     document.removeEventListener('mousemove', onMove);
@@ -271,7 +200,6 @@ function dpInitDragHandle() {
     document.removeEventListener('mouseup', onEnd);
     document.removeEventListener('touchend', onEnd);
   }
-
   function onStart(e) {
     startY = e.touches ? e.touches[0].clientY : e.clientY;
     startH = drawer.offsetHeight;
@@ -288,25 +216,23 @@ function dpInitDragHandle() {
 }
 
 function initDevPanel() {
-  // Bootstrap DEV state from the original seed data sizes
-  DEV.listCount       = LISTS.length;
-  DEV.groupCount      = GROUPS.length;
-  DEV.sharedCount     = SHARED.length;
-  DEV.sharedByMeCount = Object.keys(COLLABORATORS).length;
-  DEV.itemsPerList    = LISTS[0]?.items?.length ?? 6;
+  const s = DB.settings[CURRENT_USER_ID];
 
   const greetingOptions = GREETINGS.map(
-    (g, i) => `<option value="${g}">${g.replace(/Ahmed/g, '…')}</option>`
+    (g) =>
+      `<option value="${g}">${g.replace(/Ahmed/g, getCurrentUser().name)}</option>`,
+  ).join('');
+
+  const userOptions = REGISTERED_USERS.map(
+    (u) =>
+      `<option value="${u.username}"${u.username === CURRENT_USER_ID ? ' selected' : ''}>${u.name} (@${u.username})</option>`,
   ).join('');
 
   const html = `
-    <!-- Trigger pill -->
     <button class="devpanel-trigger" onclick="dpOpen()">⚙ Dev panel</button>
 
-    <!-- Backdrop -->
     <div class="devpanel-overlay" id="dp-overlay" onclick="dpClose()"></div>
 
-    <!-- Drawer -->
     <div class="devpanel-drawer" id="dp-drawer">
       <div class="devpanel-handle"></div>
 
@@ -315,69 +241,15 @@ function initDevPanel() {
         <button class="devpanel-close" onclick="dpClose()">✕ close</button>
       </div>
 
-      <!-- ── Data scale ── -->
+      <!-- ── Current User ── -->
       <div class="devpanel-section">
-        <p class="devpanel-section-label">Data scale</p>
+        <p class="devpanel-section-label">Current User</p>
 
         <div class="devpanel-row">
-          <span class="devpanel-label">Lists</span>
-          <input class="devpanel-range" type="range" min="0" max="30"
-            value="${DEV.listCount}"
-            oninput="dpSet('listCount', this.value)">
-          <span class="devpanel-value" id="dp-val-listCount">${DEV.listCount}</span>
-        </div>
-
-        <div class="devpanel-row">
-          <span class="devpanel-label">Groups</span>
-          <input class="devpanel-range" type="range" min="0" max="10"
-            value="${DEV.groupCount}"
-            oninput="dpSet('groupCount', this.value)">
-          <span class="devpanel-value" id="dp-val-groupCount">${DEV.groupCount}</span>
-        </div>
-
-        <div class="devpanel-row">
-          <span class="devpanel-label">Shared with me</span>
-          <input class="devpanel-range" type="range" min="0" max="5"
-            value="${DEV.sharedCount}"
-            oninput="dpSet('sharedCount', this.value)">
-          <span class="devpanel-value" id="dp-val-sharedCount">${DEV.sharedCount}</span>
-        </div>
-
-        <div class="devpanel-row">
-          <span class="devpanel-label">Shared by me</span>
-          <input class="devpanel-range" type="range" min="0" max="5"
-            value="${DEV.sharedByMeCount}"
-            oninput="dpSet('sharedByMeCount', this.value)">
-          <span class="devpanel-value" id="dp-val-sharedByMeCount">${DEV.sharedByMeCount}</span>
-        </div>
-
-        <div class="devpanel-row">
-          <span class="devpanel-label">Items per list</span>
-          <input class="devpanel-range" type="range" min="0" max="20"
-            value="${DEV.itemsPerList}"
-            oninput="dpSet('itemsPerList', this.value)">
-          <span class="devpanel-value" id="dp-val-itemsPerList">${DEV.itemsPerList}</span>
-        </div>
-
-        <div class="devpanel-row">
-          <span class="devpanel-label">Active ratio</span>
-          <input class="devpanel-range" type="range" min="0" max="100" step="10"
-            value="${DEV.activeRatio}"
-            oninput="dpSet('activeRatio', this.value)">
-          <span class="devpanel-value" id="dp-val-activeRatio">${DEV.activeRatio}%</span>
-        </div>
-      </div>
-
-      <!-- ── User ── -->
-      <div class="devpanel-section">
-        <p class="devpanel-section-label">User</p>
-
-        <div class="devpanel-row">
-          <span class="devpanel-label">Display name</span>
-          <input class="devpanel-input" type="text"
-            value="${DEV.username}"
-            oninput="dpSet('username', this.value)"
-            placeholder="Ahmed">
+          <span class="devpanel-label">Logged in as</span>
+          <select class="devpanel-select" id="dp-user-select" onchange="dpSet('userId', this.value)">
+            ${userOptions}
+          </select>
         </div>
 
         <div class="devpanel-row">
@@ -389,21 +261,41 @@ function initDevPanel() {
         </div>
       </div>
 
-      <!-- ── Permissions ── -->
+      <!-- ── Data scale ── -->
       <div class="devpanel-section">
-        <p class="devpanel-section-label">Permissions</p>
+        <p class="devpanel-section-label">Data scale <span class="devpanel-section-note">(current user)</span></p>
 
         <div class="devpanel-row">
-          <span class="devpanel-label">Role</span>
-          <select class="devpanel-select" onchange="dpSet('role', this.value)">
-            <option value="owner">Owner — full access</option>
-            <option value="editor">Editor — no sharing</option>
-            <option value="viewer">Viewer — read only</option>
-          </select>
+          <span class="devpanel-label">Lists</span>
+          <input class="devpanel-range" type="range" min="0" max="30"
+            value="${s.listCount}" oninput="dpSet('listCount', this.value)">
+          <span class="devpanel-value" id="dp-val-listCount">${s.listCount}</span>
+        </div>
+
+        <div class="devpanel-row">
+          <span class="devpanel-label">Groups</span>
+          <input class="devpanel-range" type="range" min="0" max="10"
+            value="${s.groupCount}" oninput="dpSet('groupCount', this.value)">
+          <span class="devpanel-value" id="dp-val-groupCount">${s.groupCount}</span>
+        </div>
+
+        <div class="devpanel-row">
+          <span class="devpanel-label">Items per list</span>
+          <input class="devpanel-range" type="range" min="0" max="20"
+            value="${s.itemsPerList}" oninput="dpSet('itemsPerList', this.value)">
+          <span class="devpanel-value" id="dp-val-itemsPerList">${s.itemsPerList}</span>
+        </div>
+
+        <div class="devpanel-row">
+          <span class="devpanel-label">Shopping ratio</span>
+          <input class="devpanel-range" type="range" min="0" max="100" step="10"
+            value="${s.shoppingRatio}" oninput="dpSet('shoppingRatio', this.value)">
+          <span class="devpanel-value" id="dp-val-shoppingRatio">${s.shoppingRatio}%</span>
         </div>
       </div>
     </div>`;
 
   document.body.insertAdjacentHTML('beforeend', html);
   dpInitDragHandle();
+  dpApply();
 }

@@ -39,6 +39,13 @@
   white-space: nowrap;
 }
 .crumb:hover { color: var(--fg); }
+.crumb-current {
+  color: var(--fg);
+  cursor: default;
+  pointer-events: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .crumb-sep {
   color: var(--muted-fg);
   margin: 0 6px;

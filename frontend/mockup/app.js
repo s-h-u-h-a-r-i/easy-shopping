@@ -2,7 +2,5 @@
 
 renderViews();
 initShareModal();
-initDevPanel();
-document.getElementById('hub-greeting').textContent =
-  GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+initDevPanel();  // calls dpApply() which sets greeting, avatars, recent, etc.
 renderBreadcrumb();
