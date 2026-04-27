@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>easy shopping — prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell" id="shell">
+
+    <!-- ── Top bar ─────────────────────────────────────────────────────────── -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <nav class="breadcrumb" id="breadcrumb" aria-label="breadcrumb"></nav>
+      </div>
+      <div class="topbar-right">
+        <button class="theme-btn" onclick="toggleTheme()">toggle theme</button>
+        <div class="avatar" onclick="navigateTo('profile')">AH</div>
+      </div>
+    </header>
+
+    <!-- ── Content ─────────────────────────────────────────────────────────── -->
+    <!-- The hub is the only structurally unique view; all others are rendered
+         by app.js from data and injected into this container. -->
+    <main class="content" id="content">
+
+      <div class="view active" id="view-home">
+        <div class="hub-inner">
+          <p class="hub-greeting" id="hub-greeting"></p>
+          <p class="hub-sub">You have 2 active lists.</p>
+
+          <div class="hub-sections">
+            <div class="hub-card" onclick="navigateTo('lists')">
+              <div class="hub-card-icon">☰</div>
+              <div class="hub-card-title">Lists</div>
+              <div class="hub-card-meta">2 active</div>
+            </div>
+            <div class="hub-card" onclick="navigateTo('groups')">
+              <div class="hub-card-icon">⊞</div>
+              <div class="hub-card-title">Groups</div>
+              <div class="hub-card-meta">3 groups</div>
+            </div>
+            <div class="hub-card" onclick="navigateTo('shared')">
+              <div class="hub-card-icon">⇄</div>
+              <div class="hub-card-title">Shared</div>
+              <div class="hub-card-meta">1 shared</div>
+            </div>
+            <div class="hub-card" onclick="navigateTo('profile')">
+              <div class="hub-card-icon">◯</div>
+              <div class="hub-card-title">Profile</div>
+              <div class="hub-card-meta">@ahmose</div>
+            </div>
+          </div>
+
+          <div class="recent-strip">
+            <div class="recent-header">
+              <p class="section-label" style="margin-bottom:0">Recent</p>
+              <button class="add-btn" onclick="navigateTo('lists')">+ New list</button>
+            </div>
+            <div class="recent-list">
+              <div class="recent-row" onclick="navigateToList('list-weekly', 'Weekly groceries')">
+                <span class="recent-name">Weekly groceries <span class="badge active">active</span></span>
+                <span class="recent-meta">14 items</span>
+              </div>
+              <div class="recent-row" onclick="navigateToList('list-pharmacy', 'Pharmacy run')">
+                <span class="recent-name">Pharmacy run <span class="badge shopping">shopping</span></span>
+                <span class="recent-meta">4 items</span>
+              </div>
+              <div class="recent-row" onclick="navigateToList('list-bbq', 'Weekend BBQ')">
+                <span class="recent-name">Weekend BBQ</span>
+                <span class="recent-meta">Apr 19</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── Bottom nav (mobile) ──────────────────────────────────────────────── -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-inner">
+        <button class="bnav-item active" id="bnav-home" onclick="navigateTo('home')">
+          <span class="bnav-icon">⌂</span>
+          <span class="bnav-label">Home</span>
+        </button>
+        <button class="bnav-item" id="bnav-lists" onclick="navigateTo('lists')">
+          <span class="bnav-icon">☰</span>
+          <span class="bnav-label">Lists</span>
+        </button>
+        <button class="bnav-item" id="bnav-groups" onclick="navigateTo('groups')">
+          <span class="bnav-icon">⊞</span>
+          <span class="bnav-label">Groups</span>
+        </button>
+        <button class="bnav-item" id="bnav-profile" onclick="navigateTo('profile')">
+          <span class="bnav-icon">◯</span>
+          <span class="bnav-label">Profile</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
