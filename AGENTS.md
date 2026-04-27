@@ -137,6 +137,21 @@ app/modules/<module>/
 - Uses `@supabase/supabase-js` for auth and direct DB reads where appropriate
 - Calls FastAPI for AI-related endpoints
 - Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`
+
+### Offline-resilient Architecture
+
+**The app must remain partially functional if the FastAPI backend is offline.** The Supabase JS client talks directly to Supabase (auth + DB via RLS) — no backend required for most features.
+
+| Operation                     | Route                    | Works offline?              |
+| ----------------------------- | ------------------------ | --------------------------- |
+| Sign up / log in              | Supabase Auth (client)   | ✅ Yes                      |
+| View / edit profile           | Supabase DB direct (RLS) | ✅ Yes                      |
+| Shopping lists, items, groups | Supabase DB direct (RLS) | ✅ Yes                      |
+| AI list generation            | FastAPI                  | ❌ No (gracefully degraded) |
+| Any other FastAPI endpoint    | FastAPI                  | ❌ No (gracefully degraded) |
+
+**Consequence for feature planning:** auth and most CRUD features can be built frontend-first against Supabase directly. The backend is only required for AI endpoints. Features that depend on the backend must degrade gracefully (hide the action, show a "unavailable" state) rather than breaking the whole app.
+
 - **Styling: Vanilla Extract** — TypeScript-first CSS-in-JS; every component has a co-located `.css.ts` file; global styles in `src/styles/`
 - **Global styles structure:**
   - `src/styles/contract.css.ts` — theme contract; single source of truth for ALL CSS variable names (typed via `createThemeContract`)
