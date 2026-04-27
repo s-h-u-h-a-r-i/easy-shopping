@@ -7,7 +7,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/topbar.css" />
+  <link rel="stylesheet" href="css/hub.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/modal.css" />
+  <link rel="stylesheet" href="css/nav.css" />
 </head>
 <body>
   <div class="shell" id="shell">
@@ -24,8 +29,6 @@
     </header>
 
     <!-- ── Content ─────────────────────────────────────────────────────────── -->
-    <!-- The hub is the only structurally unique view; all others are rendered
-         by app.js from data and injected into this container. -->
     <main class="content" id="content">
 
       <div class="view active" id="view-home">
@@ -50,7 +53,7 @@
               <div class="hub-card-meta">1 shared</div>
             </div>
             <div class="hub-card" onclick="navigateTo('profile')">
-              <div class="hub-card-icon">◯</div>
+              <div class="hub-card-icon"><div class="avatar hub-avatar">AH</div></div>
               <div class="hub-card-title">Profile</div>
               <div class="hub-card-meta">@ahmose</div>
             </div>
@@ -104,6 +107,13 @@
     </nav>
 
   </div>
+
+  <!-- Scripts load in dependency order -->
+  <script src="data.js"></script>
+  <script src="helpers.js"></script>
+  <script src="views.js"></script>
+  <script src="nav.js"></script>
+  <script src="modal.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

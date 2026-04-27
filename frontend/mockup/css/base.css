@@ -1,0 +1,34 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #fafafa;
+  --fg: #1a1a1a;
+  --primary: #6366f1;
+  --muted-fg: #737373;
+  --border: color-mix(in oklch, #fafafa, #1a1a1a 12%);
+  --card: oklch(from #fafafa calc(l - 0.015) c h);
+  --font: 'DM Sans', system-ui, sans-serif;
+}
+.dark {
+  --bg: #0a0a0a;
+  --fg: #fafafa;
+  --muted-fg: #a3a3a3;
+  --border: color-mix(in oklch, #0a0a0a, #fafafa 12%);
+  --card: oklch(from #0a0a0a calc(l + 0.03) c h);
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
