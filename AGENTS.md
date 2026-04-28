@@ -205,6 +205,17 @@ src/features/<name>/
 └── service.ts        ← business logic → Effect<Schema, AppError>
 ```
 
+### Frontend Dev / Mock Mode
+
+A self-contained mock system for testing UI layout and state without real network calls. Activated via `VITE_MOCK=true bun run dev` (or the `dev:mock` script once added).
+
+- **Scenario store** (`src/dev/scenario.ts`) — a Solid store holding the current auth user, network mode, and any per-feature data variant. Single source of truth for all dev state.
+- **Mock service implementations** (`src/features/<feature>/mock.ts`) — sibling to the real `service.ts`; reads from the scenario store and returns Effect values directly (succeed / fail / delayed).
+- **Dev panel** (`src/dev/DevPanel.tsx`) — floating overlay rendered only in mock mode; writes to the scenario store. Controls: signed-in user, network state, per-feature data variants.
+- **Wiring** — `src/index.tsx` uses a static `import.meta.env.VITE_MOCK` check to provide either real or mock service context. Vite tree-shakes the mock branch out of production builds.
+
+Full spec: `frontend/DEV_MODE.md`
+
 ## Visual Design Language
 
 The UI is text-forward and weightless. Surfaces carry no fills; interaction is expressed through colour, borders, and light rather than boxes and backgrounds.
