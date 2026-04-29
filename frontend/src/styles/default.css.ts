@@ -3,6 +3,9 @@ import { globalStyle } from '@vanilla-extract/css';
 import { vars } from './contract.css';
 
 globalStyle(':root', {
+  // Tells the browser which palette to use for native form controls (select
+  // dropdowns, scrollbars, etc.) — kept in sync with the media-query-driven theme.
+  colorScheme: 'light',
   vars: {
     // Core surfaces — dark mode overrides these two, everything else derives from them
     [vars.color.background]: '#fafafa',
@@ -51,6 +54,7 @@ globalStyle(':root', {
 globalStyle(':root', {
   '@media': {
     '(prefers-color-scheme: dark)': {
+      colorScheme: 'dark',
       vars: {
         [vars.color.background]: '#0a0a0a',
         [vars.color.foreground]: '#fafafa',
