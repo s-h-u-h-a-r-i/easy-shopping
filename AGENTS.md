@@ -193,8 +193,8 @@ All feature-layer logic uses the `effect` npm package, mirroring the backend's Z
 **Layers:**
 
 - `src/lib/errors.ts` — shared `AppError` tagged error types
-- `src/features/<feature>/models.ts` — DB row shape (plain interface, mirrors DB schema)
-- `src/features/<feature>/schemas.ts` — component-facing shape (what pages/ui receive)
+- `src/features/<feature>/models.ts` — DB row shape (plain interface, mirrors DB schema); no `Effect` workflows
+- `src/features/<feature>/schemas.ts` — component-facing shape (what pages/ui receive); declarative `Schema.*` from `effect` is fine; no `Effect` workflows
 - `src/features/<feature>/repository.ts` — Supabase queries wrapped in `Effect.tryPromise`; returns `Effect<Model, AppError>`
 - `src/features/<feature>/service.ts` — business logic; composes Effects, maps Model → Schema; returns `Effect<Schema, AppError>`
 
@@ -207,8 +207,8 @@ All feature-layer logic uses the `effect` npm package, mirroring the backend's Z
 ```
 src/features/<name>/
 ├── index.ts          ← public re-exports
-├── models.ts         ← DB row shape (no Effect)
-├── schemas.ts        ← component-facing shape (no Effect)
+├── models.ts         ← DB row shape; plain types only; no `Effect` workflows
+├── schemas.ts        ← component-facing shape; `Schema.*` from `effect` OK; no `Effect` workflows
 ├── repository.ts     ← Supabase queries → Effect<Model, AppError>
 └── service.ts        ← business logic → Effect<Schema, AppError>
 ```
