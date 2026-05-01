@@ -10,17 +10,13 @@ import { routes } from './router';
 import './styles/default.css.ts';
 import './styles/global.css.ts';
 
-// Static env check — false branch is dead-code eliminated by Rollup in production.
-// DevPanel and src/dev/ never ship outside mock mode.
-const DevPanel = import.meta.env.VITE_MOCK
-  ? lazy(() => import('./dev/DevPanel'))
-  : () => null;
+const DevPanel = import.meta.env.VITE_MOCK ? lazy(() => import('./dev/DevPanel')) : () => null;
 
 const root = document.getElementById('root');
 
 if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   throw new Error(
-    'Root element not found. Did you forget to add it to your index.html? Or maybe the id attribute got misspelled?',
+    'Root element not found. Did you forget to add it to your index.html? Or maybe the id attribute got misspelled?'
   );
 }
 
@@ -31,5 +27,5 @@ render(
       <DevPanel />
     </ThemeProvider>
   ),
-  root!,
+  root!
 );

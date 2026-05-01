@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-solid';
+import ChevronDown from 'lucide-solid/icons/chevron-down';
 import { Component, ComponentProps, createUniqueId, Show, splitProps } from 'solid-js';
 
 import * as styles from './Select.css';

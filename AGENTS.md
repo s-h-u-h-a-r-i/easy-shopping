@@ -175,6 +175,7 @@ app/modules/<module>/
   - `pages/` — assembles features and ui components into views
 
 - **File structure per ui component:** `src/ui/<Component>/Component.tsx`, `Component.css.ts`, `index.ts`
+- **Icons (`lucide-solid`):** default-import each icon from `lucide-solid/icons/<kebab-case-name>` (for example `import Bug from 'lucide-solid/icons/bug'`). Do not import from the package root (`import { … } from 'lucide-solid'`).
 
 ### Frontend Architecture — Effect Pattern
 
