@@ -9,26 +9,6 @@ export const layout = style({
   overflow: 'hidden',
   gridTemplateRows: '1fr auto',
   gridTemplateAreas: "'content' 'bottom-nav'",
-  '@media': {
-    [`(min-width: ${bp.tablet}px)`]: {
-      gridTemplateColumns: `${vars.layout.sidebarWidth} 1fr`,
-      gridTemplateRows: '1fr',
-      gridTemplateAreas: "'sidebar content'",
-    },
-  },
-});
-
-export const sidebar = style({
-  gridArea: 'sidebar',
-  display: 'none',
-  background: 'none',
-  borderRight: `1px solid ${vars.color.sidebarBorder}`,
-  '@media': {
-    [`(min-width: ${bp.tablet}px)`]: {
-      display: 'flex',
-      flexDirection: 'column',
-    },
-  },
 });
 
 export const content = style({

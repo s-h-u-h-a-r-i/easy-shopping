@@ -12,8 +12,7 @@ globalStyle(':root', {
     [vars.color.foreground]: '#1a1a1a',
 
     // Card derives from background at build-and-runtime via CSS relative color
-    [vars.color.card]:
-      `oklch(from ${vars.color.background} calc(l - 0.015) c h)`,
+    [vars.color.card]: `oklch(from ${vars.color.background} calc(l - 0.015) c h)`,
     [vars.color.cardForeground]: vars.color.foreground,
 
     // Accent
@@ -21,11 +20,11 @@ globalStyle(':root', {
     [vars.color.primaryForeground]: '#ffffff',
 
     // Muted / border derive from bg+fg mix
-    [vars.color.muted]:
-      `color-mix(in oklch, ${vars.color.background}, ${vars.color.foreground} 8%)`,
+    [vars.color
+      .muted]: `color-mix(in oklch, ${vars.color.background}, ${vars.color.foreground} 8%)`,
     [vars.color.mutedForeground]: '#737373',
-    [vars.color.border]:
-      `color-mix(in oklch, ${vars.color.background}, ${vars.color.foreground} 12%)`,
+    [vars.color
+      .border]: `color-mix(in oklch, ${vars.color.background}, ${vars.color.foreground} 12%)`,
 
     // Aliases
     [vars.color.inputBackground]: vars.color.card,
@@ -35,7 +34,6 @@ globalStyle(':root', {
     [vars.color.destructive]: '#ef4444',
     [vars.color.destructiveForeground]: '#ffffff',
     [vars.color.switchBackground]: '#d4d4d4',
-    [vars.color.sidebarBorder]: vars.color.border,
   },
 });
 
@@ -47,7 +45,6 @@ globalStyle(':root', {
     [vars.font.weightMedium]: '500',
     // Layout
     [vars.layout.radius]: '0.75rem',
-    [vars.layout.sidebarWidth]: '280px',
   },
 });
 

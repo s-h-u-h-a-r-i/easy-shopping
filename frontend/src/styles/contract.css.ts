@@ -16,7 +16,6 @@ export const vars = createThemeContract({
     destructive: null,
     destructiveForeground: null,
     switchBackground: null,
-    sidebarBorder: null,
   },
   font: {
     family: null,
@@ -25,6 +24,5 @@ export const vars = createThemeContract({
   },
   layout: {
     radius: null,
-    sidebarWidth: null,
   },
 });
