@@ -13,23 +13,6 @@ export const root = style({
   gap: '0.5rem',
 });
 
-export const toggle = style({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: '2rem',
-  height: '2rem',
-  background: vars.color.card,
-  border: `1px solid ${vars.color.border}`,
-  color: vars.color.mutedForeground,
-  cursor: 'pointer',
-  transition: 'color 150ms ease, border-color 150ms ease',
-  ':hover': {
-    color: vars.color.foreground,
-    borderColor: vars.color.foreground,
-  },
-});
-
 export const panel = style({
   background: vars.color.card,
   border: `1px solid ${vars.color.border}`,
