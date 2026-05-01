@@ -8,6 +8,8 @@ A smart shopping list application where users can manage grocery/shopping lists.
 
 This is a portfolio project to showcase PostgreSQL experience via Supabase.
 
+**Resilience stance:** Core shopping-list workflows must not collapse when **Supabase is unreachable** or **hosted FastAPI (Cloud Run) is offline**. When those services return, prefer sync-or-reconcile; while they are absent, UX continues from local/session state wherever possible rather than treating the outage as fatal.
+
 ## Goals
 
 - Users can create and manage shopping lists, organised into personal groups
@@ -18,6 +20,7 @@ This is a portfolio project to showcase PostgreSQL experience via Supabase.
 - Clean, modern UI with SolidStart
 - REST API with FastAPI deployed to Google Cloud Run
 - Supabase (PostgreSQL) as the primary database and auth provider
+- **External-service resilience:** design list and catalogue behaviour so meaningful use continues without Supabase and without the deployed backend — align with **`localStorage` for local-only products** where the canonical DB cannot be reached — and degrade individual features rather than failing the whole app when a dependency is missing
 
 ## Tech Stack
 
@@ -144,17 +147,21 @@ app/modules/<module>/
 
 ### Offline-resilient Architecture
 
-**The app must remain partially functional if the FastAPI backend is offline.** The Supabase JS client talks directly to Supabase (auth + DB via RLS) — no backend required for most features.
+**Design principle:** From the client's perspective **Supabase (Auth + Postgres) and hosted FastAPI are best-effort dependencies**. Everyday flows should **degrade gracefully**: prefer local/session persistence, caches, retries, hide or disable gated actions over uncaught failures, blank shells, or full-screen errors that strand the user.
 
-| Operation                     | Route                    | Works offline?              |
+**Supabase unreachable:** Aim for **partial or full** list/catalogue behaviour while the network path to Supabase is down — e.g. an already-authenticated session with data available locally, **local-only barcode items persisted in `localStorage`** where the catalogue rules disallow unsynced writes to Postgres, queues for later sync, and read-only or cached snapshots where feasible. Paths that unavoidably require the cloud (e.g. first-time sign-up, authoritative cross-device sync) should fail **locally** with clear unavailable messaging, without breaking unrelated surfaces.
+
+**FastAPI offline:** Supabase JS talks directly to Supabase — **no FastAPI needed for typical auth and CRUD** when Postgres is reachable. If both Supabase **and** FastAPI fail, rules above apply to Supabase; FastAPI-specific features (**AI**, other cloud routes) degrade only those entry points.
+
+| Operation                     | Primary route            | Requires FastAPI?           |
 | ----------------------------- | ------------------------ | --------------------------- |
-| Sign up / log in              | Supabase Auth (client)   | ✅ Yes                      |
-| View / edit profile           | Supabase DB direct (RLS) | ✅ Yes                      |
-| Shopping lists, items, groups | Supabase DB direct (RLS) | ✅ Yes                      |
-| AI list generation            | FastAPI                  | ❌ No (gracefully degraded) |
-| Any other FastAPI endpoint    | FastAPI                  | ❌ No (gracefully degraded) |
+| Sign up / log in              | Supabase Auth (client)   | No                          |
+| View / edit profile           | Supabase DB direct (RLS) | No                          |
+| Shopping lists, items, groups | Supabase DB direct (RLS) | No                          |
+| AI list generation            | FastAPI                  | Yes — gracefully degraded |
+| Any other FastAPI endpoint    | FastAPI                  | Yes — gracefully degraded |
 
-**Consequence for feature planning:** auth and most CRUD features can be built frontend-first against Supabase directly. The backend is only required for AI endpoints. Features that depend on the backend must degrade gracefully (hide the action, show a "unavailable" state) rather than breaking the whole app.
+**Consequence for feature planning:** Frontend-first flows against Supabase stay the norm; backend is additive (AI etc.). Anything that touches FastAPI **or** Supabase must degrade per-feature (toggle to unavailable, surfaced error on that surface only) rather than collapsing the surrounding app.
 
 - **Styling: Vanilla Extract** — TypeScript-first CSS-in-JS; every component has a co-located `.css.ts` file; global styles in `src/styles/`
 - **Global styles structure:**
@@ -210,9 +217,9 @@ src/features/<name>/
 
 A self-contained mock system for testing UI layout and state without real network calls. Activated via `VITE_MOCK=true bun run dev` (or the `dev:mock` script once added).
 
-- **Scenario store** (`src/dev/scenario.ts`) — a Solid store holding the current auth user, network mode, and any per-feature data variant. Single source of truth for all dev state.
-- **Mock service implementations** (`src/features/<feature>/mock.ts`) — sibling to the real `service.ts`; reads from the scenario store and returns Effect values directly (succeed / fail / delayed).
-- **Dev panel** (`src/dev/DevPanel.tsx`) — floating overlay rendered only in mock mode; writes to the scenario store. Controls: signed-in user, network state, per-feature data variants.
+- **Dev mock store** — a Solid store under `src/dev/` holding the current auth user, network mode, and any per-feature data variant; single source of truth for mock-mode dev state.
+- **Mock service implementations** (`src/features/<feature>/mock.ts`) — sibling to the real `service.ts`; reads the dev mock store and returns Effect values directly (succeed / fail / delayed).
+- **Dev panel** (`src/dev/DevPanel.tsx`) — floating overlay rendered only in mock mode; writes the dev mock store. Controls: signed-in user, network state, per-feature data variants.
 - **Wiring** — `src/index.tsx` uses a static `import.meta.env.VITE_MOCK` check to provide either real or mock service context. Vite tree-shakes the mock branch out of production builds.
 
 Full spec: `frontend/DEV_MODE.md`

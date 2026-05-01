@@ -17,7 +17,7 @@ A self-contained development overlay that lets you test layout, feel, and UI sta
 Dev Panel (floating overlay, mock-mode only)
     │ writes to
     ▼
-Scenario Store  (src/dev/scenario.ts — Solid store, mock-mode only)
+Dev mock store  (Solid store under src/dev/, mock-mode only)
     │ read by
     ▼
 Mock Service Implementations  (src/features/<feature>/mock.ts)
@@ -33,11 +33,11 @@ Pages and features call services through a context-provided handle. In real mode
 
 ---
 
-## Scenario Store
+## Dev mock store
 
-`src/dev/scenario.ts`
+Implement as a Solid store exported from whichever module(s) under `src/dev/` fit your layout (alongside `DevPanel.tsx`, a dedicated store file, etc.).
 
-A single Solid store that holds all controllable dev state. Mock service implementations read from it reactively — changing a value in the dev panel propagates immediately without a page reload.
+A single Solid store holds all controllable dev state. Mock service implementations read from it reactively — changing a value in the dev panel propagates immediately without a page reload.
 
 ```ts
 type MockUser = {
@@ -46,7 +46,7 @@ type MockUser = {
   email: string
 }
 
-type Scenario = {
+type DevMockState = {
   auth: {
     user: MockUser | null  // null = signed out
   }
@@ -56,13 +56,13 @@ type Scenario = {
 }
 ```
 
-The store is created once and exported. Mock layers import it directly. Nothing outside `src/dev/` or `src/features/*/mock.ts` touches it.
+Create the store once and export it. Mock layers import it directly. Nothing outside `src/dev/` or `src/features/*/mock.ts` touches it.
 
 ---
 
 ## Service Layer — Mock Implementations
 
-Each feature already has `service.ts` (real implementation). Add a sibling `mock.ts` that reads from the scenario store.
+Each feature already has `service.ts` (real implementation). Add a sibling `mock.ts` that reads the dev mock store.
 
 **Feature file structure (updated):**
 
@@ -73,21 +73,21 @@ src/features/<name>/
 ├── schemas.ts
 ├── repository.ts     ← real Supabase queries
 ├── service.ts        ← real business logic
-└── mock.ts           ← mock implementation (reads scenario store)
+└── mock.ts           ← mock implementation (reads dev mock store)
 ```
 
 ### Pattern for mock.ts
 
 ```ts
-// mock.ts — reads scenario store, returns Effect values
-import { scenario } from '../../dev/scenario'
+// mock.ts — reads dev mock store, returns Effect values
+import { devMockStore } from '../../dev/your-mock-store-module'
 
 export const mockShoppingListService = {
   getLists: () => {
-    if (scenario.network === 'error')
+    if (devMockStore.network === 'error')
       return Effect.fail(new NetworkError())
 
-    if (scenario.network === 'slow')
+    if (devMockStore.network === 'slow')
       return Effect.succeed(mockLists).pipe(Effect.delay('2 seconds'))
 
     return Effect.succeed(mockLists)
@@ -103,9 +103,9 @@ The real service doesn't need to change at all. It stays as-is.
 
 ## Auth Service
 
-Auth state is part of the scenario store (`scenario.auth.user`). The mock auth service reads from it directly. Switching the user in the dev panel = the entire app sees a new authenticated user instantly.
+Auth state is part of the dev mock store (`devMockStore.auth.user`). The mock auth service reads from it directly. Switching the user in the dev panel = the entire app sees a new authenticated user instantly.
 
-Mock users are defined in `src/dev/scenario.ts` alongside the store:
+Define mock users next to the store export in the same `src/dev/` module:
 
 ```ts
 export const MOCK_USERS: MockUser[] = [
@@ -146,7 +146,7 @@ A floating overlay, rendered only in mock mode. Positioned in a corner so it doe
 | Network select | `success / error / slow` — affects all service calls |
 | Per-feature data selects | e.g. `populated / empty / many items` (add as needed) |
 
-The panel writes directly to the scenario store. No other wiring needed — mock services react automatically.
+The panel writes the dev mock store. No other wiring needed — mock services react automatically.
 
 ---
 
@@ -164,9 +164,9 @@ Add to `package.json` scripts for convenience:
 
 ---
 
-## Adding a New Mock Scenario
+## Adding mock state fields
 
-1. Add any new scenario fields to the `Scenario` type in `src/dev/scenario.ts`
+1. Extend the dev mock store type wherever you define it under `src/dev/`
 2. Set a default value in the initial store
 3. Add a control for it in `DevPanel.tsx`
 4. Read the field in the relevant `mock.ts`
