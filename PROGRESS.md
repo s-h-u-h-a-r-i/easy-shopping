@@ -6,7 +6,7 @@
 - Supabase projects created (dev + prod)
 - Git initialised and pushed to GitHub
 - Multi-root VSCode workspace (`easy-shopping.code-workspace`)
-- Frontend scaffolded (`frontend/`) — SolidJS + Vite, Bun, TypeScript, SPA mode
+- Frontend scaffolded (`frontend/`) — SolidJS + Vite, Bun, TypeScript, SPA mode; feature layer uses async services and discriminated `AppError` types (no Effect-TS on the client)
 - FastAPI backend scaffolded (`backend/`)
   - `core/effect/` — custom `Effect[A, E]` system (ZIO/Effect-TS style)
   - `core/errors.py` — typed `AppError` hierarchy

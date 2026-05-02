@@ -1,274 +1,39 @@
-# easy-shopping — AI Agent Context
+# Agent notes — easy_shopping
 
-This file provides context for AI assistants working on this project across sessions.
+Dense instructions for whoever loads this workspace. Humans may read it incidentally; optimize for correctness and retrieval, not onboarding prose.
 
-## AI agent — workspace edits (mandatory)
+## Identity of the repo
 
-**Default:** Do **not** create, modify, or delete files in this repository; do **not** run shell commands that mutate the workspace (e.g. writes, patches, installs, `git` commits). You may read/search the codebase when answering. Prefer **answers and full code blocks in chat** for the human to paste, unless editing is explicitly unlocked for **this message only** as below.
+- Multi-root workspace root: shopping app with `frontend/` and `backend/`.
+- **Frontend**: SolidJS + Vite, TypeScript, SPA; Bun tooling per `frontend/` docs (`DEV_MODE.md` when relevant).
+- **Backend**: FastAPI; custom `Effect` style in `core/effect/`; typed `AppError`; Supabase async client + JWT (JWKS, ES256) at HTTP boundary.
+- **Data**: Supabase Postgres; migrations/RLS and `handle_new_user` documented in progress notes; MCP server may be enabled as `plugin-supabase-supabase` — **read tool schemas under the project `mcps/` folder before calling MCP tools.**
 
-**Unlock phrase (required in the same prompt):** The human may authorize edits for **the current user message only** by including this **exact** substring (case-sensitive, including underscores):
+## Canonical project state
 
-```text
-WRITE_TO_FILE
-```
+- Treat `PROGRESS.md` at repo root as the backlog / done list unless the user overrides.
+- Deferred items there (e.g. PWA/offline per `PWA.md`, AI list generation) are out of scope unless the user explicitly expands scope.
 
-- The phrase must appear **in the user prompt that requests the change**, not only in prior turns and not inferred from conversation history.
-- Mentioning it once **does not** turn on “always edit” for later messages; each edit request needs the phrase in **that** prompt (or the human must repeat it when they want more edits).
-- If the phrase is absent, treat the request as **read-only / chat-only** even if the human previously authorized edits in an earlier message.
+## Operating rules specific to this user
 
-## Project Overview
+- Do **not** write or patch repo files unless the **current user message** contains the exact phrase `WRITE_TO_FILES`.
+- Prefer absolute paths in tool arguments for this workspace.
+- No drive-by refactors or unsolicited markdown/doc files unless the user asked.
+- User said not to worry about backwards compatibility unless they say otherwise.
 
-A smart shopping list application where users can manage grocery/shopping lists. An AI layer learns from user behaviour and generates personalised shopping list suggestions over time.
+## How to work effectively here
 
-This is a portfolio project to showcase PostgreSQL experience via Supabase.
+1. Before changing behavior or APIs, read the nearby module and matching patterns (`AppError`, effect runners, frontend service layer).
+2. Keep diffs minimal and scoped; match existing naming, imports, and error/style patterns.
+3. For Supabase: use the Supabase skill path from the skill list when the task touches schema, Auth, RLS, or migrations; honor Postgres best-practices skill when writing SQL.
+4. Run the project’s actual commands (`bun`, `uv`/`pytest`, etc.) — confirm from `frontend/` and `backend/` configs rather than guessing.
 
-**Resilience stance:** Core shopping-list workflows must not collapse when **Supabase is unreachable** or **hosted FastAPI (Cloud Run) is offline**. When those services return, prefer sync-or-reconcile; while they are absent, UX continues from local/session state wherever possible rather than treating the outage as fatal.
+## Silence / hallucination avoidance
 
-## Goals
+- If something isn’t in the repo or MCP output, search or read files; don’t invent endpoints or table columns.
+- When uncertain about runtime or env vars, grep for usage or read settings modules (e.g. backend `core/config.py`).
 
-- Users can create and manage shopping lists, organised into personal groups
-- Products added via barcode scan — global catalogue, API lookup, local-only if not found
-- Lists can be shared with others (owner / editor / viewer roles) via user invite
-- Snapshots taken on "finished shopping" — supports revert and future AI generation
-- AI list generation deferred — history data is in place; AI will generate based on group snapshot history
-- Clean, modern UI with SolidStart
-- REST API with FastAPI deployed to Google Cloud Run
-- Supabase (PostgreSQL) as the primary database and auth provider
-- **External-service resilience:** design list and catalogue behaviour so meaningful use continues without Supabase and without the deployed backend — align with **`localStorage` for local-only products** where the canonical DB cannot be reached — and degrade individual features rather than failing the whole app when a dependency is missing
+## Outputs
 
-## Tech Stack
-
-| Layer      | Technology                                 |
-| ---------- | ------------------------------------------ |
-| Frontend   | SolidJS + Vite (TypeScript) + Bun          |
-| Backend    | FastAPI (Python)                           |
-| Database   | Supabase (PostgreSQL)                      |
-| Auth       | Supabase Auth (JWT-based)                  |
-| AI         | TBD — likely OpenAI API                    |
-| Deployment | Google Cloud Run (backend), TBD (frontend) |
-| VCS        | GitHub (monorepo)                          |
-
-## Repository Structure (Monorepo)
-
-```
-easy-shopping/
-├── frontend/        # SolidStart app (Bun, TypeScript)
-├── backend/         # FastAPI app (Python)
-├── AGENTS.md        # AI context (this file)
-├── PROGRESS.md      # Development checklist
-└── README.md
-```
-
-## Supabase Projects
-
-| Environment | Project Name      | URL                                        |
-| ----------- | ----------------- | ------------------------------------------ |
-| Production  | Easy Shopping     | `https://qrzihjudzlxekgbjgbkc.supabase.co` |
-| Development | Easy Shopping Dev | TBD (check Supabase dashboard)             |
-
-- Local `.env` always points to the **dev** project
-- Production credentials go in Cloud Run environment variables (or Secret Manager later)
-
-### Auth Strategy
-
-- Supabase Auth handles user registration/login (email+password to start, OAuth later)
-- Frontend uses the Supabase JS client to sign in and get a JWT (ES256)
-- FastAPI verifies JWTs via JWKS fetched from Supabase at startup — no shared secret
-- RLS enabled on all user-facing tables
-
-### Schema (public schema — 9 tables)
-
-```
-profiles              extends auth.users; username (unique, for invite lookup), display_name
-products              global catalogue; barcode (unique), name, brand, category, image_url
-list_groups           personal collections owned by a user; used to organise lists and scope AI generation
-shopping_lists        status: idle | shopping; group_id (nullable FK list_groups); created_by
-shopping_list_members list_id + user_id + role (owner | editor | viewer)
-list_invites          list_id, invited_by, invited_user_id, role, status (pending | accepted | declined)
-list_items            list_id, product_id (NOT NULL — every saved item must reference a product), quantity, is_skipped, checked
-list_snapshots        created when user clicks "finished shopping"; accessible to owner + editors only
-snapshot_items        denormalised product name/brand/category at snapshot time + product_id (nullable)
-```
-
-**Key design decisions:**
-
-- No free-text items in DB — items must reference a product; local-only items (barcode not found) stay in localStorage
-- Products catalogue is global (shared across all users)
-- Sharing = access to current list state only; history (snapshots) visible to owner + editors, not viewers
-- List groups are personal (owner only) — shared lists appear in a "shared with me" view for other members
-- AI list generation is deferred — history data (snapshots) is in place to support it when ready
-- `generation_sessions` deferred — will be added when AI generation is implemented
-- `shopping_lists.status` is `idle | shopping` only — `completed` was removed; the snapshot mechanism captures history, the list itself reverts to `idle` when shopping ends
-- `list_items` has no `unit` column — units are part of the product name (e.g. "Oat milk 1L"); a separate unit field would require enforcing a unit system and still produces nonsense for fixed-size packages
-- `list_items.is_skipped` — lets users set items aside during a trip without removing or checking them; visible in a collapsed "Set aside" section
-- Sharing uses the `list_invites` flow (pending → accepted/declined); no immediate access grant
-
-## FastAPI Backend Notes
-
-- Python project in `backend/`
-- Uses `supabase-py` to interact with Supabase
-- JWT verification: ES256 asymmetric signing via JWKS fetched from Supabase at startup — no shared secret
-- Deployed to Google Cloud Run — Dockerfile required
-- Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-
-### Backend Architecture — Effect Pattern
-
-All business logic is wrapped in a custom `Effect[A, E]` system (`app/core/effect/`), modelled after ZIO/Effect-TS. This enforces typed error handling throughout the application.
-
-**Exit types:** `Ok[A]` | `Err[E]` | `Die` (unexpected defect)
-
-**Layers:**
-
-- `app/core/effect/effect.py` — core `Effect[A, E]` class with `gen`, `par`, `gather_exits`, `map`, `flat_map`, `retry`, `timeout`, etc.
-- `app/core/effect/runner.py` — `run(effect)` — the "end of the world"; awaits an Effect and converts the exit to an HTTP response or raises `HTTPException`
-- `app/core/errors.py` — base `AppError` ABC with concrete types: `NotFound`, `Unauthorized`, `Forbidden`, `DBError`, `ValidationError`
-- Module-specific errors live in `app/modules/<module>/errors.py` and extend `AppError`
-
-**Pattern per layer:**
-
-```
-router.py       (controller) → HTTP only; calls service, returns response via run()
-service.py                   → business logic; orchestrates Effects, maps errors; no HTTP, no raw DB
-repository.py                → data access only; all Supabase queries; returns Effect[T, DBError]
-schemas.py                   → Pydantic request/response models
-dependencies.py              → plain FastAPI async deps (framework boundary, JWT auth)
-```
-
-**Module structure:**
-
-```
-app/modules/<module>/
-├── __init__.py
-├── models.py       ← DB row representation (dataclass, mirrors DB schema)
-├── schemas.py      ← HTTP request/response shapes (Pydantic)
-├── repository.py   ← Supabase queries only; returns Effect[Model | None, DBError]
-├── service.py      ← business logic; maps Model → Schema; returns Effect[Schema, AppError]
-└── router.py       ← FastAPI routes; calls service via run()
-```
-
-**Type boundary at repository:** supabase-py stubs use `Any` in places — use `# type: ignore` once at the raw dict → Model parse in repository, restore proper types immediately. Everything above repository is fully typed.
-
-**Error type in routes is always `AppError` (or a subtype).** `AppError.to_http_exception()` handles the conversion at the boundary in `runner.py`.
-
-## Frontend Notes
-
-- Pure SPA — SolidJS + Vite (TypeScript)
-- Package manager: **Bun**
-- Client-side only, no SSR — all content behind auth so no SEO requirement
-- Uses `@supabase/supabase-js` for auth and direct DB reads where appropriate
-- Calls FastAPI for AI-related endpoints
-- Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`
-
-### Offline-resilient Architecture
-
-**Design principle:** From the client's perspective **Supabase (Auth + Postgres) and hosted FastAPI are best-effort dependencies**. Everyday flows should **degrade gracefully**: prefer local/session persistence, caches, retries, hide or disable gated actions over uncaught failures, blank shells, or full-screen errors that strand the user.
-
-**Supabase unreachable:** Aim for **partial or full** list/catalogue behaviour while the network path to Supabase is down — e.g. an already-authenticated session with data available locally, **local-only barcode items persisted in `localStorage`** where the catalogue rules disallow unsynced writes to Postgres, queues for later sync, and read-only or cached snapshots where feasible. Paths that unavoidably require the cloud (e.g. first-time sign-up, authoritative cross-device sync) should fail **locally** with clear unavailable messaging, without breaking unrelated surfaces.
-
-**FastAPI offline:** Supabase JS talks directly to Supabase — **no FastAPI needed for typical auth and CRUD** when Postgres is reachable. If both Supabase **and** FastAPI fail, rules above apply to Supabase; FastAPI-specific features (**AI**, other cloud routes) degrade only those entry points.
-
-| Operation                     | Primary route            | Requires FastAPI?         |
-| ----------------------------- | ------------------------ | ------------------------- |
-| Sign up / log in              | Supabase Auth (client)   | No                        |
-| View / edit profile           | Supabase DB direct (RLS) | No                        |
-| Shopping lists, items, groups | Supabase DB direct (RLS) | No                        |
-| AI list generation            | FastAPI                  | Yes — gracefully degraded |
-| Any other FastAPI endpoint    | FastAPI                  | Yes — gracefully degraded |
-
-**Consequence for feature planning:** Frontend-first flows against Supabase stay the norm; backend is additive (AI etc.). Anything that touches FastAPI **or** Supabase must degrade per-feature (toggle to unavailable, surfaced error on that surface only) rather than collapsing the surrounding app.
-
-- **Styling: Vanilla Extract** — TypeScript-first CSS-in-JS; every component has a co-located `.css.ts` file; global styles in `src/styles/`
-- **Global styles structure:**
-  - `src/styles/contract.css.ts` — theme contract; single source of truth for ALL CSS variable names (typed via `createThemeContract`)
-  - `src/styles/default.css.ts` — default light/dark token values; derived tokens (card, border, muted) use CSS `color-mix()` / `oklch()` relative color to auto-update from background overrides
-  - `src/styles/global.css.ts` — reset, typography, layout, scrollbar (replaces all `.scss` partials)
-  - `src/styles/breakpoints.ts` — breakpoint constants (`bp.tablet`, etc.) used in `.css.ts` files
-- **Component structure:** `src/ui/<Component>/` with `Component.tsx`, `Component.css.ts`, `index.ts`
-- **Routing:** `@solidjs/router` config-based routing (`router.ts` exports `RouteDefinition[]`); `Layout.tsx` passed as `root` prop to `<Router>` — receives `props.children` directly, no `<Outlet />` needed
-- **Architecture — dependency direction is strictly downward:**
-
-  ```
-  pages → features → ui
-  ```
-
-  - `ui/` — pure presentational components, no feature or page imports
-  - `features/` — self-contained domain logic and components, no page imports
-  - `pages/` — assembles features and ui components into views
-
-- **File structure per ui component:** `src/ui/<Component>/Component.tsx`, `Component.css.ts`, `index.ts`
-- **Icons (`lucide-solid`):** default-import each icon from `lucide-solid/icons/<kebab-case-name>` (for example `import Bug from 'lucide-solid/icons/bug'`). Do not import from the package root (`import { … } from 'lucide-solid'`).
-
-### Frontend Architecture — Effect Pattern
-
-All feature-layer logic uses the `effect` npm package, mirroring the backend's ZIO-style typed error handling.
-
-**Error types** (`src/lib/errors.ts`): tagged classes via `Data.TaggedError` — `NotFound`, `Unauthorized`, `Forbidden`, `NetworkError`, `ValidationError`. Union type `AppError` covers all of them.
-
-**Layers:**
-
-- `src/lib/errors.ts` — shared `AppError` tagged error types
-- `src/features/<feature>/models.ts` — DB row shape (plain interface, mirrors DB schema); no `Effect` workflows
-- `src/features/<feature>/schemas.ts` — component-facing shape (what pages/ui receive); declarative `Schema.*` from `effect` is fine; no `Effect` workflows
-- `src/features/<feature>/repository.ts` — Supabase queries wrapped in `Effect.tryPromise`; returns `Effect<Model, AppError>`
-- `src/features/<feature>/service.ts` — business logic; composes Effects, maps Model → Schema; returns `Effect<Schema, AppError>`
-
-**SolidJS bridge:** `createResource` fetchers call `Effect.runPromise(service.doThing())` — Effect failures propagate as thrown errors, which `createResource` captures in its error state. Use `Effect.runPromiseExit` when error type discrimination is needed at the call site.
-
-**Architecture boundary:** The `ui/` layer never imports from Effect or features. Components receive plain data via props/signals only.
-
-**Feature file structure:**
-
-```
-src/features/<name>/
-├── index.ts          ← public re-exports
-├── models.ts         ← DB row shape; plain types only; no `Effect` workflows
-├── schemas.ts        ← component-facing shape; `Schema.*` from `effect` OK; no `Effect` workflows
-├── repository.ts     ← Supabase queries → Effect<Model, AppError>
-└── service.ts        ← business logic → Effect<Schema, AppError>
-```
-
-### Frontend Dev / Mock Mode
-
-A self-contained mock system for testing UI layout and state without real network calls. Activated via `VITE_MOCK=true bun run dev` (or the `dev:mock` script once added).
-
-- **Dev mock store** — a Solid store under `src/dev/` holding the current auth user, network mode, and any per-feature data variant; single source of truth for mock-mode dev state.
-- **Mock service implementations** (`src/features/<feature>/mock.ts`) — sibling to the real `service.ts`; reads the dev mock store and returns Effect values directly (succeed / fail / delayed).
-- **Dev panel** (`src/dev/DevPanel.tsx`) — floating overlay rendered only in mock mode; writes the dev mock store. Controls: signed-in user, network state, per-feature data variants.
-- **Wiring** — `src/index.tsx` uses a static `import.meta.env.VITE_MOCK` check to provide either real or mock service context. Vite tree-shakes the mock branch out of production builds.
-
-Full spec: `frontend/DEV_MODE.md`
-
-## Visual Design Language
-
-The UI is text-forward and weightless. Surfaces carry no fills; interaction is expressed through colour, borders, and light rather than boxes and backgrounds.
-
-**Core principles:**
-
-- **No filled surfaces for interactive elements** — buttons, inputs, and controls use `background: none`. The only fills are structural (sidebar, bottom nav, cards as content containers).
-- **Bottom borders, not boxes** — interactive elements signal their boundary with a single `border-bottom`, not a full border-radius rectangle. This applies to buttons, text inputs, and similar controls.
-- **Colour and glow for state** — active/focus/hover states shift `color` and `border-color`. In dark mode, primary and destructive actions use a `text-shadow` glow (e.g. `0 0 12px var(--primary)`) instead of a fill change. In light mode the glow is replaced with a thicker bottom border or a faint `color-mix` tint.
-- **No border-radius on interactive elements** — `border-radius: 0` on inputs and buttons. Structural containers (cards, modals) may use a small radius if appropriate.
-- **Muted foreground for secondary text and idle labels** — `var(--muted-foreground)` for labels, placeholders, ghost actions, and anything not currently in focus. `var(--foreground)` on hover/active.
-- **Typography carries the hierarchy** — section labels use `font-size: 0.75rem`, `text-transform: uppercase`, `letter-spacing: 0.07–0.08em`. Body and interactive text sit at `0.875–0.9375rem`. No decorative heading sizes inside views.
-- **Transitions are subtle and fast** — `150ms ease` on `color`, `border-color`, `text-shadow`, `opacity`. No transform-based hover effects (no scale, no translate).
-- **Spacing via gap, not margin** — flex/grid layouts use `gap`; elements do not set their own external margins.
-
-## Development Progress
-
-See `PROGRESS.md` for the full checklist of completed and upcoming work.
-
-## Learned User Preferences
-
-- Conventional commit messages are expected (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:` prefixes).
-- Pragmatic abstraction — extracts local helpers only where repetition is genuine; avoids over-engineering for edge cases that are unlikely to occur.
-
-## Learned Workspace Facts
-
-- Git branch naming convention: `feat/`, `fix/`, `chore/`, `ref/` prefixes.
-- mypy configured as strict with `disallow_untyped_defs = false` and `disallow_incomplete_defs = false` — return type annotations are not required.
-- Two Supabase MCP instances configured locally in Cursor: `supabase-dev` and `supabase-prod`, each locked to their respective project (project ref only in config, no secrets).
-- Supabase new key naming (2025+): "Publishable key" = anon key (frontend); "Secret key" = service role key (backend).
-- Supabase CLI initialized at repo root (`supabase/migrations/`) for versioned schema migrations; apply per environment via CLI.
-- `postgres-language-server.jsonc` is gitignored — contains the dev DB connection string (password); must never be committed.
-- Multi-root Cursor workspace file `easy-shopping.code-workspace` at repo root — three roots: `root`, `backend`, `frontend`.
-- `/home/ahmose/Dev` is a symlink to `/mnt/dev`; the canonical workspace path is `/mnt/dev/easy-shopping`. Python language servers (mypy, basedpyright) resolve canonical paths — opening from the symlink path causes path mismatch so diagnostics don't appear in the editor. Always open Cursor from the canonical path.
+- Cite existing code with the required citation format (`start:end:path` blocks) when showing code to the user.
+- Final answers: clear, proportional; skip engagement prompts unless a real follow-up is needed.

@@ -79,25 +79,28 @@ src/features/<name>/
 ### Pattern for mock.ts
 
 ```ts
-// mock.ts — reads dev mock store, returns Effect values
+// mock.ts — reads dev mock store; same async API as service.ts
 import { devMockStore } from '../../dev/your-mock-store-module'
 
+const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
+
 export const mockShoppingListService = {
-  getLists: () => {
+  async getLists() {
     if (devMockStore.network === 'error')
-      return Effect.fail(new NetworkError())
+      throw new NetworkError({ message: 'Mock network error' })
 
-    if (devMockStore.network === 'slow')
-      return Effect.succeed(mockLists).pipe(Effect.delay('2 seconds'))
+    if (devMockStore.network === 'slow') {
+      await delay(2000)
+    }
 
-    return Effect.succeed(mockLists)
-  }
+    return mockLists
+  },
 }
 ```
 
 ### Pattern for real service.ts
 
-The real service doesn't need to change at all. It stays as-is.
+The real service uses the same pattern: `async` methods returning promises, throwing `AppError` on failure. The mock mirrors that interface so pages never branch on mock vs real.
 
 ---
 
