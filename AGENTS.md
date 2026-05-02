@@ -2,6 +2,20 @@
 
 This file provides context for AI assistants working on this project across sessions.
 
+## AI agent — workspace edits (mandatory)
+
+**Default:** Do **not** create, modify, or delete files in this repository; do **not** run shell commands that mutate the workspace (e.g. writes, patches, installs, `git` commits). You may read/search the codebase when answering. Prefer **answers and full code blocks in chat** for the human to paste, unless editing is explicitly unlocked for **this message only** as below.
+
+**Unlock phrase (required in the same prompt):** The human may authorize edits for **the current user message only** by including this **exact** substring (case-sensitive, including underscores):
+
+```text
+WRITE_TO_FILE
+```
+
+- The phrase must appear **in the user prompt that requests the change**, not only in prior turns and not inferred from conversation history.
+- Mentioning it once **does not** turn on “always edit” for later messages; each edit request needs the phrase in **that** prompt (or the human must repeat it when they want more edits).
+- If the phrase is absent, treat the request as **read-only / chat-only** even if the human previously authorized edits in an earlier message.
+
 ## Project Overview
 
 A smart shopping list application where users can manage grocery/shopping lists. An AI layer learns from user behaviour and generates personalised shopping list suggestions over time.
@@ -153,11 +167,11 @@ app/modules/<module>/
 
 **FastAPI offline:** Supabase JS talks directly to Supabase — **no FastAPI needed for typical auth and CRUD** when Postgres is reachable. If both Supabase **and** FastAPI fail, rules above apply to Supabase; FastAPI-specific features (**AI**, other cloud routes) degrade only those entry points.
 
-| Operation                     | Primary route            | Requires FastAPI?           |
-| ----------------------------- | ------------------------ | --------------------------- |
-| Sign up / log in              | Supabase Auth (client)   | No                          |
-| View / edit profile           | Supabase DB direct (RLS) | No                          |
-| Shopping lists, items, groups | Supabase DB direct (RLS) | No                          |
+| Operation                     | Primary route            | Requires FastAPI?         |
+| ----------------------------- | ------------------------ | ------------------------- |
+| Sign up / log in              | Supabase Auth (client)   | No                        |
+| View / edit profile           | Supabase DB direct (RLS) | No                        |
+| Shopping lists, items, groups | Supabase DB direct (RLS) | No                        |
 | AI list generation            | FastAPI                  | Yes — gracefully degraded |
 | Any other FastAPI endpoint    | FastAPI                  | Yes — gracefully degraded |
 
@@ -245,7 +259,6 @@ See `PROGRESS.md` for the full checklist of completed and upcoming work.
 
 ## Learned User Preferences
 
-- User prefers to write code themselves; AI should provide step-by-step instructions rather than implementing changes directly.
 - Conventional commit messages are expected (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:` prefixes).
 - Pragmatic abstraction — extracts local helpers only where repetition is genuine; avoids over-engineering for edge cases that are unlikely to occur.
 
